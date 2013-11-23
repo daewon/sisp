@@ -30,7 +30,9 @@ object Sisp {
         old
       }
     }
+
     def unapply(s: Symbol): Option[String] = Some(s.value)
+
     private def find(v: String): Atom = {
       def _find(lst: Atom): Atom = lst match {
         case Symbol(s) if s == v => car(lst)
@@ -51,7 +53,7 @@ object Sisp {
   def nilp(value: Atom) = value == nil
   def listp(expr: Atom): Boolean = expr match {
     case Pair(car, cdr) => listp(cdr)
-    case _ if nilp(expr) => true
+    case `nil` => true
     case _ => false
   }
 
