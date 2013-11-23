@@ -1,4 +1,4 @@
-package com.sisp
+package com.daewon.sisp
 
 object Sisp {
   object Error extends Enumeration {
@@ -13,19 +13,34 @@ object Sisp {
   }
 
   // app status
-  var symbolTable: Atom = nil
-
   trait Atom
   case object nil extends Atom
   case class Pair(car: Atom, cdr: Atom) extends Atom
-  case class Symbol(value: String) extends Atom
+  class Symbol(val value: String) extends Atom {
+    override def toString(): String = value
+  }
   object Symbol {
-    def apply(value: String, env: Atom): Atom = {
-      val symbol = Symbol(value)
-      symbolTable = Pair(symbol, symbolTable)
-      symbol
+    var table: Atom = nil
+    def apply(value: String, env: Atom = nil): Atom = {
+      val old = find(value)
+      if (nilp(old)) {
+        table = cons(new Symbol(value), table)
+        car(table)
+      } else {
+        old
+      }
+    }
+    def unapply(s: Symbol): Option[String] = Some(s.value)
+    private def find(v: String): Atom = {
+      def _find(lst: Atom): Atom = lst match {
+        case Symbol(s) if s == v => car(lst)
+        case `nil` => nil
+        case _ => _find(cdr(lst))
+      }
+      _find(table)
     }
   }
+
   case class Builtin[T]() extends Atom
   case class Integer(n: Int) extends Atom
 
@@ -40,46 +55,35 @@ object Sisp {
     case _ => false
   }
 
-  def printExpr(expr: Atom): Unit = expr match {
-    case Pair(car, cdr) => {
-      print("( ")
-      printExpr(car)
-      var atom = cdr
-      while (!nilp(atom)) {
-        atom match {
-          case Pair(car, cdr) => {
-            print(" ")
-            printExpr(car)
-            atom = cdr
-          }
-          case _ => {
-            print(" . ")
-            printExpr(atom)
-            print(" )")
-            return
+  def show(expr: Atom) {
+    def printExpr(expr: Atom): Unit = expr match {
+      case Pair(car, cdr) => {
+        print("(")
+        printExpr(car)
+        var atom = cdr
+        while (!nilp(atom)) {
+          atom match {
+            case Pair(car, cdr) => {
+              print(" ")
+              printExpr(car)
+              atom = cdr
+            }
+            case _ => {
+              print(" . ")
+              printExpr(atom)
+              print(")")
+              return
+            }
           }
         }
+        print(")")
       }
-
-      print(" )")
+      case Integer(n) => print(n)
+      case Symbol(str) => print(str)
+      case _ if nilp(expr) => print(" NIL")
     }
-    case Integer(n) => print(n)
-    case Symbol(str) => print(str)
-    case _ if nilp(expr) => print(" NIL")
+
+    printExpr(expr)
+    println("")
   }
 }
-
-object main extends App {
-  import Sisp._
-
-  val t = cons(Integer(1), cons(Integer(2), nil))
-  printExpr(t)
-  println()
-  // println(listp(t))
-  // println(listp(Integer(10)))
-
-  printExpr(cons(Symbol("X", symbolTable), Symbol("Y", symbolTable)))
-  // printExpr(symbolTable)
-  
-}
-

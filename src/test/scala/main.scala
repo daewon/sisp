@@ -1,15 +1,26 @@
 import org.specs2.mutable._
 
-class HelloWorldSpec extends Specification {
-  "The 'Hello world' string" should {
-    "contain 11 characters" in {
-      "Hello world" must have size(11)
+class SispSpec extends Specification {
+  import com.daewon.sisp.Sisp._
+
+  "Atom test" should {
+    "nil is Atom" in {
+      nil mustEqual nil
     }
-    "start with 'Hello'" in {
-      "Hello world" must startWith("Hello")
-    }
-    "end with 'world'" in {
-      "Hello world" must endWith("world")
-    }
+  }
+
+  "print test" should {
+    show( cons(Integer(1), Integer(2)))
+
+    println( listp(cons(Integer(1), Integer(2))))
+    println( listp(cons(Integer(1), nil)))
+
+    show( cons(Integer(1), cons(Integer(2), nil)) )
+    show( cons(Symbol("dun"), cons(Integer(1), nil)) )
+
+    show( cons(Symbol("kina"), cons(Symbol("leonard"), nil)) )
+    show( cons(Symbol("jay"), Symbol("day")) )
+    show( cons(Symbol("kina"), Symbol("day")) )
+
   }
 }
