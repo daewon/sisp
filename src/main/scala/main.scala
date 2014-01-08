@@ -2,22 +2,38 @@
 
 package com.daewon.sisp
 
+import scala.annotation.tailrec
+
 object Sisp {
   object Error extends Enumeration {
     type Error = Value
     val OK, Syntax, Unbound, Argument, Type = Value
   }
 
+  object Lexer {
+    def lex(expr: String): List[String] = {
+      ("[()]"r).split(expr).toList
+    }
+  }
+
+  object Parser {
+
+  }
+
   // app status
   trait Atom
   case object nil extends Atom
   case class Pair(car: Atom, cdr: Atom) extends Atom
+  case class Builtin[T]() extends Atom
+  case class Integer(n: Int) extends Atom
   class Symbol(val value: String) extends Atom {
     override def toString: String = value
   }
   object Symbol {
     var table: Atom = nil
+
     private def find(v: String): Atom = {
+      @tailrec
       def _find(lst: Atom): Atom = lst match {
         case Pair(Symbol(s), _) if s == v => car(lst)
         case `nil` => nil
@@ -39,16 +55,16 @@ object Sisp {
     def unapply(s: Symbol): Option[String] = Some(s.value)
   }
 
-  case class Builtin[T]() extends Atom
-  case class Integer(n: Int) extends Atom
-
   // default function
   def cons(car: Atom, cdr: Atom): Atom = Pair(car, cdr)
   def car(value: Atom) = value match { case Pair(car, _) => car }
   def cdr(value: Atom) = value match { case Pair(_, cdr) => cdr }
+
+  // predicate function
   def nilp(value: Atom) = value == nil
+  @tailrec
   def listp(expr: Atom): Boolean = expr match {
-    case Pair(car, cdr) => listp(cdr)
+    case Pair(_, cdr) => listp(cdr)
     case `nil` => true
     case _ => false
   }

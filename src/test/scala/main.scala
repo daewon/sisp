@@ -4,6 +4,8 @@ class SispSpec extends Specification {
   import com.daewon.sisp.Sisp._
 
   "Atom test" should {
+    Integer(1).n mustEqual 1
+
     "nil is Atom" in {
       nil mustEqual nil
     }
@@ -25,5 +27,9 @@ class SispSpec extends Specification {
     show( cons(Symbol("dun"), cons(Integer(1), nil)) ) mustEqual "(dun 1)"
     show( cons(Symbol("jay"), cons(Symbol("leonard"), nil)) ) mustEqual "(jay leonard)"
     show( cons(Symbol("kina"), Symbol("day")) ) mustEqual "(kina . day)"
+  }
+
+  "Lexer test" should {
+    Lexer.lex("(foo bar)") mustEqual List("(", "foo", "bar", ")")
   }
 }
