@@ -9,18 +9,21 @@ class SispSpec extends Specification {
     }
   }
 
-  "print test" should {
-    show( cons(Integer(1), Integer(2)))
+  "Predicate test" should {
+    nilp(nil) mustEqual true
+    listp(cons(Integer(1), Integer(2))) mustEqual false
+    listp(cons(Integer(1), nil)) mustEqual true
+  }
 
-    println( listp(cons(Integer(1), Integer(2))))
-    println( listp(cons(Integer(1), nil)))
+  "Symbol test" should {
+    Symbol("daewon") mustEqual Symbol("daewon")
+  }
 
-    show( cons(Integer(1), cons(Integer(2), nil)) )
-    show( cons(Symbol("dun"), cons(Integer(1), nil)) )
-
-    show( cons(Symbol("kina"), cons(Symbol("leonard"), nil)) )
-    show( cons(Symbol("jay"), Symbol("day")) )
-    show( cons(Symbol("kina"), Symbol("day")) )
-
+  "Show test" should {
+    show( cons(Integer(1), Integer(2))) mustEqual "(1 . 2)"
+    show( cons(Integer(1), cons(Integer(2), nil)) ) mustEqual "(1 2)"
+    show( cons(Symbol("dun"), cons(Integer(1), nil)) ) mustEqual "(dun 1)"
+    show( cons(Symbol("jay"), cons(Symbol("leonard"), nil)) ) mustEqual "(jay leonard)"
+    show( cons(Symbol("kina"), Symbol("day")) ) mustEqual "(kina . day)"
   }
 }

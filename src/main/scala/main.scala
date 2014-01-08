@@ -1,3 +1,5 @@
+// reference: http://www.lwh.jp/lisp/
+
 package com.daewon.sisp
 
 object Sisp {
@@ -6,41 +8,35 @@ object Sisp {
     val OK, Syntax, Unbound, Argument, Type = Value
   }
 
-  object Lexer {
-  }
-
-  object Parser {
-  }
-
   // app status
   trait Atom
   case object nil extends Atom
   case class Pair(car: Atom, cdr: Atom) extends Atom
   class Symbol(val value: String) extends Atom {
-    override def toString(): String = value
+    override def toString: String = value
   }
   object Symbol {
     var table: Atom = nil
-    def apply(value: String, env: Atom = nil): Atom = {
-      val old = find(value)
-      if (nilp(old)) {
-        table = cons(new Symbol(value), table)
-        car(table)
-      } else {
-        old
-      }
-    }
-
-    def unapply(s: Symbol): Option[String] = Some(s.value)
-
     private def find(v: String): Atom = {
       def _find(lst: Atom): Atom = lst match {
-        case Symbol(s) if s == v => car(lst)
+        case Pair(Symbol(s), _) if s == v => car(lst)
         case `nil` => nil
         case _ => _find(cdr(lst))
       }
       _find(table)
     }
+
+    def apply(value: String, env: Atom = nil): Symbol = {
+      val old = find(value)
+      if (nilp(old)) {
+        table = cons(new Symbol(value), table)
+        car(table).asInstanceOf[Symbol]
+      } else {
+        old.asInstanceOf[Symbol]
+      }
+    }
+
+    def unapply(s: Symbol): Option[String] = Some(s.value)
   }
 
   case class Builtin[T]() extends Atom
@@ -57,35 +53,40 @@ object Sisp {
     case _ => false
   }
 
-  def show(expr: Atom) {
+  def show(expr: Atom): String = {
+    var out = ""
     def printExpr(expr: Atom): Unit = expr match {
       case Pair(car, cdr) => {
-        print("(")
+        out += "("
         printExpr(car)
         var atom = cdr
         while (!nilp(atom)) {
           atom match {
             case Pair(car, cdr) => {
-              print(" ")
+              out += " "
               printExpr(car)
               atom = cdr
             }
             case _ => {
-              print(" . ")
+              out += " . "
               printExpr(atom)
-              print(")")
+              out += ")"
               return
             }
           }
         }
-        print(")")
+        out += ")"
       }
-      case Integer(n) => print(n)
-      case Symbol(str) => print(str)
-      case _ if nilp(expr) => print(" NIL")
+      case Integer(n) =>  out += n
+      case Symbol(str) => out += str
+      case `nil` => out += " NIL"
     }
-
     printExpr(expr)
-    println("")
+    out
   }
+}
+
+object Main extends App {
+  import Sisp._
+  show( Pair(Symbol("daewon"), Symbol("jeong")) )
 }
