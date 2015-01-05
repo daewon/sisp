@@ -1,40 +1,21 @@
 // reference: http://www.lwh.jp/lisp/
 
 package com.daewon.sisp
-
-import scala.annotation.tailrec
+import scala.annotation._
 
 object Sisp {
-  object Error extends Enumeration {
-    type Error = Value
-    val OK, Syntax, Unbound, Argument, Type = Value
-  }
-
-  object Lexer {
-    def lex(expr: String): List[String] = {
-      ("[()]"r).split(expr).toList
-    }
-  }
-
-  object Parser {
-
-  }
-
-  // app status
+  // basic datatype
   trait Atom
   case object nil extends Atom
   case class Pair(car: Atom, cdr: Atom) extends Atom
-  case class Builtin[T]() extends Atom
-  case class Integer(n: Int) extends Atom
+  case class Integer(value: Int) extends Atom
   class Symbol(val value: String) extends Atom {
-    override def toString: String = value
+    override def toString: String = value.toString
   }
   object Symbol {
-    var table: Atom = nil
-
+    var table: Atom = nil // for cache duplicate symbol
     private def find(v: String): Atom = {
-      @tailrec
-      def _find(lst: Atom): Atom = lst match {
+      @tailrec def _find(lst: Atom): Atom = lst match {
         case Pair(Symbol(s), _) if s == v => car(lst)
         case `nil` => nil
         case _ => _find(cdr(lst))
@@ -42,67 +23,100 @@ object Sisp {
       _find(table)
     }
 
-    def apply(value: String, env: Atom = nil): Symbol = {
-      val old = find(value)
-      if (nilp(old)) {
-        table = cons(new Symbol(value), table)
-        car(table).asInstanceOf[Symbol]
-      } else {
-        old.asInstanceOf[Symbol]
+    def apply(value: String): Symbol = {
+      find(value) match {
+        case `nil` =>
+          table = cons(new Symbol(value), table)
+          car(table).asInstanceOf[Symbol]
+        case _@atom => atom.asInstanceOf[Symbol]
       }
     }
 
     def unapply(s: Symbol): Option[String] = Some(s.value)
   }
 
-  // default function
+  // default functions
   def cons(car: Atom, cdr: Atom): Atom = Pair(car, cdr)
-  def car(value: Atom) = value match { case Pair(car, _) => car }
-  def cdr(value: Atom) = value match { case Pair(_, cdr) => cdr }
+  def car(expr: Atom) = expr match { case Pair(car, _) => car }
+  def cdr(expr: Atom) = expr match { case Pair(_, cdr) => cdr }
 
-  // predicate function
-  def nilp(value: Atom) = value == nil
-  @tailrec
-  def listp(expr: Atom): Boolean = expr match {
+  // predicate functions
+
+  // NIL
+  def nilp(expr: Atom) = expr == nil
+  @tailrec def listp(expr: Atom): Boolean = expr match {
     case Pair(_, cdr) => listp(cdr)
     case `nil` => true
     case _ => false
   }
 
+  // `(a . b)
+  def pairp(expr: Atom) = expr match {
+    case Pair(car, cdr) if (!listp(cdr)) => true
+    case Pair(car, `nil`) => false
+    case _ => false
+  }
+
+  // show
   def show(expr: Atom): String = {
-    var out = ""
-    def printExpr(expr: Atom): Unit = expr match {
-      case Pair(car, cdr) => {
-        out += "("
-        printExpr(car)
-        var atom = cdr
-        while (!nilp(atom)) {
-          atom match {
-            case Pair(car, cdr) => {
-              out += " "
-              printExpr(car)
-              atom = cdr
-            }
-            case _ => {
-              out += " . "
-              printExpr(atom)
-              out += ")"
-              return
-            }
-          }
-        }
-        out += ")"
-      }
-      case Integer(n) =>  out += n
-      case Symbol(str) => out += str
-      case `nil` => out += " NIL"
+    def paren(s: String) = "(" + s + ")"
+    def showCdr(expr: Atom): String = expr match {
+      case Pair(Pair(hd, tl), tail) => showCar(Pair(hd, tl)) + " " + showCar(tail)
+      case Pair(hd, tl) => showCdr(hd) + " " + showCdr(tl)
+      case _ => showCar(expr)
     }
-    printExpr(expr)
-    out
+
+    def showCar(expr: Atom): String = expr match {
+      case Pair(hd, `nil`) => paren(showCar(hd))
+      case Pair(hd, Pair(h, t)) => paren((showCar(hd) + " " + showCdr(Pair(h, t))).trim)
+      case Pair(hd, tl) => paren(showCar(hd) + " . " + showCdr(tl) )
+      case Integer(n) => n.toString
+      case Symbol(str) => str
+      case `nil` => ""
+    }
+
+    showCar(expr)
+  }
+
+  // env
+  // ((foo . 1) (bar . 20)), pair of  list
+  object Environment {
+    def createEnv = nil
+    def remove(symbol: Symbol, env: Atom): Atom = env match {
+      case Pair(Pair(Symbol(p), value), tl) if Symbol(p) == symbol => tl
+      case Pair(hd, tl) => Pair(hd, remove(symbol, tl))
+      case `nil` => nil
+      case _ => env
+    }
+
+    def set(symbol: Symbol, value: Atom, env: Atom): Atom =
+      Pair(Pair(symbol, value), remove(symbol, env))
+
+    def get(symbol: Symbol, env: Atom, parent: Atom=nil): Atom = env match {
+      case Pair(Pair(p, value), tl) if p == symbol => value
+      case Pair(Pair(p, value), tl) => get(symbol, tl)
+      case `nil` => nil
+    }
+  }
+
+  // eval
+  import Environment._
+  def eval(expr: Atom, env: Atom): (Atom, Atom) = expr match {
+    case Pair(Symbol(sym), Pair(Symbol(name), tl)) if sym == "define" =>
+      val newEnv = set(Symbol(name), tl, env)
+      (Symbol(name), newEnv)
+
+    case Pair(Symbol(name), _)  =>
+      (get(Symbol(name), env), env)
+    case Symbol(name) => (get(Symbol(name), env), env)
+    case `nil` => (nil, env)
+    case _ => (expr, expr)
   }
 }
 
 object Main extends App {
+  // TODO: REPL(read eval print loop)
   import Sisp._
-  show( Pair(Symbol("daewon"), Symbol("jeong")) )
+  val str = show(Pair(Symbol("daewon"), Symbol("jeong")))
+  println(str)
 }

@@ -1,31 +1,35 @@
-name := "bootstrap"
+name := "sisp"
 
 version := "0.1"
 
-sbtVersion := "0.13"
+sbtVersion := "0.13.7"
 
-scalaVersion := "2.10.3"
+scalaVersion := "2.11.4"
+
+scalacOptions ++= Seq(
+  "-feature",
+  "-deprecation",
+  "-language:postfixOps",
+  "-language:implicitConversions",
+  "-Yrangepos"
+)
 
 libraryDependencies ++= Seq(
-  "org.specs2" %% "specs2" % "1.14" % "test"
+  "org.scalatest" % "scalatest_2.11" % "2.1.3" % "test"
 )
 
-scalacOptions += "-feature"
-
-scalacOptions += "-deprecation"
-
-// Read here for optional dependencies:
-// http://etorreborre.github.com/specs2/guide/org.specs2.guide.Runners.html#Dependencies
 resolvers ++= Seq(
   "snapshots" at "http://oss.sonatype.org/content/repositories/snapshots",
-  "releases"  at "http://oss.sonatype.org/content/repositories/releases"
+  "releases"  at "http://oss.sonatype.org/content/repositories/releases",
+  "Typesafe Snapshots" at "http://repo.typesafe.com/typesafe/snapshots"
 )
 
-resolvers += "Typesafe Snapshots" at "http://repo.typesafe.com/typesafe/snapshots/"
 
-libraryDependencies ++= List(
-  // use the right Slick version here:
-  "com.typesafe.slick" %% "slick" % "1.0.0",
-  "org.slf4j" % "slf4j-nop" % "1.6.4",
-  "com.h2database" % "h2" % "1.3.166"
-)
+initialCommands += """
+"""
+
+initialCommands in console += """
+import scala.language._
+import scala.language.implicitConversions._
+import com.daewon.sisp._
+"""
