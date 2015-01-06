@@ -10,70 +10,22 @@ class SispSpec extends FunSuite {
   }
 
   test("show") {
-    println(show(
-      Pair(Integer(1),
-        Pair(Integer(2),
-          Pair(Integer(3),
-            Pair(Integer(4),
-              nil))))
-    ))
+    assert(show(Pair(Integer(1), nil)) == "(1)")
+    assert(show(Pair(Integer(1), Pair(Integer(2), Pair(Integer(3), nil)))) == "(1 2 3)")
+    assert(show(Pair(Integer(1), Pair(Integer(2), Pair(Integer(3), Pair(Integer(4), nil))))) == "(1 2 3 4)")
 
-    // ((1))
-    println(show(
-      Pair(Pair(Integer(1), nil), nil)
-    ))
+    assert(show(Pair(Pair(Integer(1), nil), nil)) == "((1))")
+    assert(show(Pair(Pair(Integer(1), nil), Pair(Integer(2), nil))) == "((1) 2)")
 
-    println(show(Pair(Pair(Integer(1), nil), Pair(Integer(2), nil))))
-
-    assert(show(
-      Pair(Integer(1),
-        Pair(Integer(2),
-          Pair(Integer(3),
-            nil)))) == "(1 2 3)")
-
-    // (foo 1 2 3)
-    println(show(
-      Pair(Symbol("foo"), // head
-        Pair(Integer(1), // tail
-          Pair(Integer(2),
-            Pair(Integer(3),
-              nil))))))
-
-    val lst123 =
-      Pair(Integer(1),
-        Pair(Integer(2),
-          Pair(Integer(3),
-            nil)))
-
+    val lst123 = Pair(Integer(1), Pair(Integer(2), Pair(Integer(3), nil)))
     assert(show(Pair(Symbol("foo"), lst123)) == "(foo 1 2 3)")
     assert(show(Pair(Symbol("foo"), Pair(lst123, nil))) == "(foo (1 2 3))")
 
-    assert(show(
-      Pair(Integer(1), Integer(2))
-    ) == "(1 . 2)")
+    assert(show(Pair(Integer(1), Integer(2))) == "(1 . 2)")
+    assert(show(Pair(Integer(1), Pair(Integer(2), nil))) == "(1 2)")
 
-    assert(show(
-      Pair(Integer(1),
-        Pair(Integer(2),
-          nil))
-    ) == "(1 2)")
-
-    assert(show(
-      Pair(Integer(1),
-        Pair(Integer(2),
-          Pair(Integer(3),
-            nil)))
-    ) == "(1 2 3)")
-
-    assert(show(
-      Pair(Symbol("dun"),
-        Pair(Integer(1),
-          nil))
-    ) == "(dun 1)")
-
-    assert(show(
-      Pair(Pair(Symbol("dun"), Integer(1)), Integer(2))
-    ) == "((dun . 1) . 2)")
+    assert(show(Pair(Symbol("dun"), Pair(Integer(1), nil))) == "(dun 1)")
+    assert(show(Pair(Pair(Symbol("dun"), Integer(1)), Integer(2))) == "((dun . 1) . 2)")
 
     // show(cons(Builtin("+"), cons(Integer(1), cons(Integer(2), nil)))) mustEqual "(+ 1 2)"
   }
@@ -81,14 +33,11 @@ class SispSpec extends FunSuite {
   test("predicate") {
     // nil
     assert(nilp(nil))
-
     // (1 . 2)
     assert(pairp(Pair(Integer(1), Integer(2))))
-
     // ((dun . 1) . 2)
     assert(pairp(Pair(Pair(Symbol("dun"), Integer(1)), Integer(2))))
     assert(listp(Pair(Pair(Symbol("dun"), Integer(1)), Integer(2))) == false)
-
     // (1 2)
     assert(listp(Pair(Integer(1), Integer(2))) == false)
   }

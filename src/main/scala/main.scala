@@ -9,31 +9,7 @@ object Sisp {
   case object nil extends Atom
   case class Pair(car: Atom, cdr: Atom) extends Atom
   case class Integer(value: Int) extends Atom
-  class Symbol(val value: String) extends Atom {
-    override def toString: String = value.toString
-  }
-  object Symbol {
-    var table: Atom = nil // for cache duplicate symbol
-    private def find(v: String): Atom = {
-      @tailrec def _find(lst: Atom): Atom = lst match {
-        case Pair(Symbol(s), _) if s == v => car(lst)
-        case `nil` => nil
-        case _ => _find(cdr(lst))
-      }
-      _find(table)
-    }
-
-    def apply(value: String): Symbol = {
-      find(value) match {
-        case `nil` =>
-          table = cons(new Symbol(value), table)
-          car(table).asInstanceOf[Symbol]
-        case _@atom => atom.asInstanceOf[Symbol]
-      }
-    }
-
-    def unapply(s: Symbol): Option[String] = Some(s.value)
-  }
+  case class Symbol(value: String) extends Atom
 
   // default functions
   def cons(car: Atom, cdr: Atom): Atom = Pair(car, cdr)
@@ -42,7 +18,7 @@ object Sisp {
 
   // predicate functions
 
-  // NIL
+  // nil
   def nilp(expr: Atom) = expr == nil
   @tailrec def listp(expr: Atom): Boolean = expr match {
     case Pair(_, cdr) => listp(cdr)
@@ -116,7 +92,7 @@ object Sisp {
 
 object Main extends App {
   // TODO: REPL(read eval print loop)
-  import Sisp._
-  val str = show(Pair(Symbol("daewon"), Symbol("jeong")))
-  println(str)
+  // import Sisp._
+  // val str = show(Pair(Symbol("daewon"), Symbol("jeong")))
+  // println(str)
 }
