@@ -85,6 +85,22 @@ class SispSpec extends FunSuite {
     assert(Integer(100) == get(env, Symbol("a"))) // find from parent
   }
 
+  test("eval") {
+    import Environment._
+    val define = Symbol("define")
+    val quote = Symbol("quote")
+
+    var env = createEnv()
+    var res = eval(env, Pair(define, Pair(Symbol("age"), Integer(10))))
+    assert(cdr(res) == Integer(10))
+    env = car(res)
+
+    res = eval(env, Pair(quote, Pair(define, Pair(Symbol("age"), Integer(10)))))
+    assert(cdr(res) == Pair(define, Pair(Symbol("age"), Integer(10))))
+    sh(car(res))
+    env = car(res)
+  }
+
   // test("eval") {
   //   import Environment._
   //   implicit var env: Atom = createEnv

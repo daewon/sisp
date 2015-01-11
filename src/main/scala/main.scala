@@ -65,8 +65,8 @@ object Sisp {
   object Environment {
     def createEnv(parent: Atom = nil): Atom = Pair(parent, nil)
     def set(env: Atom, key: Symbol, value: Atom): Pair = {
-      val (parent, current) = (car(env), cdr(env))
-      Pair(parent, Pair(Pair(key, value), unset(current, key)))
+      val (parent, _) = (car(env), cdr(env))
+      Pair(parent, Pair(Pair(key, value), unset(env, key)))
     }
 
     def unset(env: Atom, target: Symbol): Atom = {
@@ -75,13 +75,12 @@ object Sisp {
         case Pair(hd, tl) => Pair(hd, _unset(tl))
         case `nil` => nil
       }
-
       val (parent, current) = (car(env), cdr(env))
       Pair(parent, _unset(current))
     }
 
     def get(env: Atom, symbol: Atom): Atom = {
-      def _find(lst: Atom): Atom = lst match {
+      @tailrec def _find(lst: Atom): Atom = lst match {
         case Pair(Pair(Symbol(name), v), tl) if Symbol(name) == symbol => v
         case Pair(_, tl) => _find(tl)
         case `nil` => nil
@@ -97,7 +96,15 @@ object Sisp {
 
   // eval
   import Environment._
-  def eval(expr: Atom, env: Atom): Pair = ???
+  def eval(env: Atom, expr: Atom): Pair = expr match {
+    case Pair(Symbol(name), Pair(Symbol(k), v)) if name == "define" =>
+      val newEnv = set(env, Symbol(k), v)
+      Pair(newEnv, cdr(cadr(newEnv)))
+    case Pair(Symbol(name), Pair(Symbol(k), v)) if name == "quote" =>
+      val newEnv = set(env, Symbol(name), Pair(Symbol(k), v))
+      Pair(newEnv, cdr(cadr(newEnv)))
+    case _ => Pair(env, env)
+  }
 }
 
 object Main extends App {
