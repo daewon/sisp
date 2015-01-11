@@ -16,6 +16,7 @@ object Sisp {
   def cons(car: Atom, cdr: Atom): Atom = Pair(car, cdr)
   def car(expr: Atom) = expr match { case Pair(car, _) => car }
   def cdr(expr: Atom) = expr match { case Pair(_, cdr) => cdr }
+  def cadr(expr: Atom) = car(cdr(expr))
 
   // predicate functions
 
@@ -44,6 +45,7 @@ object Sisp {
       case _ => showCar(expr)
     }
 
+    // ((a . 10) (b . 20) (c . 30) (d . 40))
     def showCar(expr: Atom): String = expr match {
       case Pair(hd, Pair(h, t)) => paren((showCar(hd) + " " + showCdr(Pair(h, t))).trim)
       case Pair(hd, `nil`) => paren(showCar(hd))
@@ -61,19 +63,36 @@ object Sisp {
   // env
   // (nil (foo . 1) (bar . 20)), pair of  list: car is parent
   object Environment {
-    def unset(env: Atom, target: Symbol): Atom = env match {
-      case Pair(`nil`, tl) => unset(tl, target)
-      case Pair(Pair(Symbol(a), _), tl) if Symbol(a) == target => {
-        unset(tl, target)
-      }
-      case Pair(hd, tl) =>  {
-        Pair(hd, unset(tl, target))
-      }
-      case `nil` => nil
+    def createEnv(parent: Atom = nil): Atom = Pair(parent, nil)
+    def set(env: Atom, key: Symbol, value: Atom): Pair = {
+      val (parent, current) = (car(env), cdr(env))
+      Pair(parent, Pair(Pair(key, value), unset(current, key)))
     }
 
-    def createEnv(parent: Atom = nil): Atom = Pair(parent, nil)
-    def set(env: Atom, name: Symbol, value: Atom): Pair =  ???
+    def unset(env: Atom, target: Symbol): Atom = {
+      def _unset(env: Atom): Atom = env match {
+        case Pair(Pair(Symbol(name), _), tl) if Symbol(name) == target => _unset(tl)
+        case Pair(hd, tl) => Pair(hd, _unset(tl))
+        case `nil` => nil
+      }
+
+      val (parent, current) = (car(env), cdr(env))
+      Pair(parent, _unset(current))
+    }
+
+    def get(env: Atom, symbol: Atom): Atom = {
+      def _find(lst: Atom): Atom = lst match {
+        case Pair(Pair(Symbol(name), v), tl) if Symbol(name) == symbol => v
+        case Pair(_, tl) => _find(tl)
+        case `nil` => nil
+      }
+
+      val (parent, current) = (car(env), cdr(env))
+      val res = _find(current)
+
+      if (res != nil) res // TODO:: throw
+      else _find(parent)
+    }
   }
 
   // eval

@@ -55,17 +55,34 @@ class SispSpec extends FunSuite {
     import Environment._
     val a = Pair(Symbol("a"), Integer(10))
     val b = Pair(Symbol("b"), Integer(20))
-    val c = Pair(Symbol("c"), Integer(20))
+    val c = Pair(Symbol("c"), Integer(30))
+    val d = Pair(Symbol("d"), Integer(40))
 
-    // var env = cons(a, cons(b, cons(c, nil)))
-    // sh(env)
+    val parent = (Pair(a, Pair(b, Pair(c, Pair(d, nil)))))
+    var env = createEnv(parent)
+    assert(Pair(a, Pair(b, Pair(c, Pair(d, nil)))) == car(env))
 
-    // env = unset(env, Symbol("daewon2"))
-    // var env = createEnv()
-    // val res = set(env, Symbol("daewon"), Pair(Symbol("daewon"), Integer(34)))
-    // val value = car(res)
-    // println(show(value))
-    // env = cdr(res)
+    // unset
+    val current = parent
+    env = Pair(nil, current)
+    assert(Pair(nil, Pair(a, Pair(b, Pair(c, nil)))) == unset(env, Symbol("d")))
+    assert(Pair(nil, Pair(b, Pair(c, Pair(d, nil)))) == unset(env, Symbol("a")))
+    assert(Pair(nil, Pair(a, Pair(c, Pair(d, nil)))) == unset(env, Symbol("b")))
+
+    // set
+    env = set(env, Symbol("age"), Integer(10))
+    assert(car(env) == nil)
+    assert(Pair(Symbol("age"), Integer(10)) == cadr(env))
+    env = set(env, Symbol("alias"), Symbol("daewon"))
+    assert(Pair(Symbol("alias"), Symbol("daewon")) == cadr(env))
+
+    env = set(env, Symbol("a"), Integer(100))
+    assert(Pair(Symbol("a"), Integer(100)) == cadr(env))
+
+    // get
+    env = Pair(parent, cdr(env))
+    assert(Symbol("daewon") == get(env, Symbol("alias")))
+    assert(Integer(100) == get(env, Symbol("a"))) // find from parent
   }
 
   // test("eval") {
