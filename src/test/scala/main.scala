@@ -27,47 +27,46 @@ class SispSpec extends FunSuite {
     assert(show(Pair(Symbol("dun"), Pair(Integer(1), nil))) == "(dun 1)")
     assert(show(Pair(Pair(Symbol("dun"), Integer(1)), Integer(2))) == "((dun . 1) . 2)")
 
+    val a = Pair(Symbol("a"), Integer(10))
+    val b = Pair(Symbol("b"), Integer(20))
+    val c = Pair(Symbol("c"), Integer(30))
+    val d = Pair(Symbol("d"), Integer(40))
+
+    assert(show(Pair(a, Pair(b, Pair(c, Pair(d, nil))))) == "((a . 10) (b . 20) (c . 30) (d . 40))")
     // show(cons(Builtin("+"), cons(Integer(1), cons(Integer(2), nil)))) mustEqual "(+ 1 2)"
   }
 
   test("predicate") {
     // nil
     assert(nilp(nil))
+
     // (1 . 2)
     assert(pairp(Pair(Integer(1), Integer(2))))
+
+    // (1 2)
+    assert(listp(Pair(Integer(1), Integer(2))) == false)
+
     // ((dun . 1) . 2)
     assert(pairp(Pair(Pair(Symbol("dun"), Integer(1)), Integer(2))))
     assert(listp(Pair(Pair(Symbol("dun"), Integer(1)), Integer(2))) == false)
-    // (1 2)
-    assert(listp(Pair(Integer(1), Integer(2))) == false)
   }
 
-  // test("env") {
-  //   import Environment._
+  test("env") {
+    import Environment._
+    val a = Pair(Symbol("a"), Integer(10))
+    val b = Pair(Symbol("b"), Integer(20))
+    val c = Pair(Symbol("c"), Integer(20))
 
-  //   var env: Atom = createEnv
-  //   env = set(Symbol("foo"), Integer(10), env)
-  //   assert(car(env) == Pair(Symbol("foo"), Integer(10)))
-  //   assert(get(Symbol("foo"), env) == Integer(10))
+    // var env = cons(a, cons(b, cons(c, nil)))
+    // sh(env)
 
-  //   env = set(Symbol("foo"), Integer(15), env)
-  //   assert(car(env) == Pair(Symbol("foo"), Integer(15)))
-  //   assert(get(Symbol("foo"), env) == Integer(15))
-
-  //   env = remove(Symbol("foo"), env)
-  //   env = set(Symbol("foo1"), Integer(10), env)
-  //   env = set(Symbol("foo2"), Integer(20), env)
-  //   env = set(Symbol("foo3"), Integer(30), env)
-
-  //   assert(get(Symbol("foo3"), env) == Integer(30))
-
-  //   env = set(Symbol("foo3"), nil, env)
-  //   assert(get(Symbol("foo3"), env) == nil)
-
-  //   env = set(Symbol("foo"), Pair(Integer(1), Pair(Integer(2), Pair(Integer(3), nil))), env)
-  //   assert(get(Symbol("foo"), env) ==
-  //     Pair(Integer(1), Pair(Integer(2), Pair(Integer(3), nil))))
-  // }
+    // env = unset(env, Symbol("daewon2"))
+    // var env = createEnv()
+    // val res = set(env, Symbol("daewon"), Pair(Symbol("daewon"), Integer(34)))
+    // val value = car(res)
+    // println(show(value))
+    // env = cdr(res)
+  }
 
   // test("eval") {
   //   import Environment._

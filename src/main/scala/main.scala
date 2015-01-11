@@ -2,6 +2,7 @@
 
 package com.daewon.sisp
 import scala.annotation._
+import scala.util._
 
 object Sisp {
   // basic datatype
@@ -37,15 +38,16 @@ object Sisp {
   def show(expr: Atom): String = {
     def paren(s: String) = "(" + s + ")"
     def showCdr(expr: Atom): String = expr match {
+      case Pair(Pair(a, b), Pair(c, d)) => showCar(Pair(a, b)) + " " + showCdr(Pair(c, d))
       case Pair(Pair(hd, tl), tail) => showCar(Pair(hd, tl)) + " " + showCar(tail)
       case Pair(hd, tl) => showCdr(hd) + " " + showCdr(tl)
       case _ => showCar(expr)
     }
 
     def showCar(expr: Atom): String = expr match {
-      case Pair(hd, `nil`) => paren(showCar(hd))
       case Pair(hd, Pair(h, t)) => paren((showCar(hd) + " " + showCdr(Pair(h, t))).trim)
-      case Pair(hd, tl) => paren(showCar(hd) + " . " + showCdr(tl) )
+      case Pair(hd, `nil`) => paren(showCar(hd))
+      case Pair(hd, tl) => paren(showCar(hd) + " . " + showCdr(tl))
       case Integer(n) => n.toString
       case Symbol(str) => str
       case `nil` => ""
@@ -54,40 +56,29 @@ object Sisp {
     showCar(expr)
   }
 
+  def sh(value: Atom) = println(show(value))
+
   // env
-  // ((foo . 1) (bar . 20)), pair of  list
+  // (nil (foo . 1) (bar . 20)), pair of  list: car is parent
   object Environment {
-    def createEnv = nil
-    def remove(symbol: Symbol, env: Atom): Atom = env match {
-      case Pair(Pair(Symbol(p), value), tl) if Symbol(p) == symbol => tl
-      case Pair(hd, tl) => Pair(hd, remove(symbol, tl))
-      case `nil` => nil
-      case _ => env
-    }
-
-    def set(symbol: Symbol, value: Atom, env: Atom): Atom =
-      Pair(Pair(symbol, value), remove(symbol, env))
-
-    def get(symbol: Symbol, env: Atom, parent: Atom=nil): Atom = env match {
-      case Pair(Pair(p, value), tl) if p == symbol => value
-      case Pair(Pair(p, value), tl) => get(symbol, tl)
+    def unset(env: Atom, target: Symbol): Atom = env match {
+      case Pair(`nil`, tl) => unset(tl, target)
+      case Pair(Pair(Symbol(a), _), tl) if Symbol(a) == target => {
+        unset(tl, target)
+      }
+      case Pair(hd, tl) =>  {
+        Pair(hd, unset(tl, target))
+      }
       case `nil` => nil
     }
+
+    def createEnv(parent: Atom = nil): Atom = Pair(parent, nil)
+    def set(env: Atom, name: Symbol, value: Atom): Pair =  ???
   }
 
   // eval
   import Environment._
-  def eval(expr: Atom, env: Atom): (Atom, Atom) = expr match {
-    case Pair(Symbol(sym), Pair(Symbol(name), tl)) if sym == "define" =>
-      val newEnv = set(Symbol(name), tl, env)
-      (Symbol(name), newEnv)
-
-    case Pair(Symbol(name), _)  =>
-      (get(Symbol(name), env), env)
-    case Symbol(name) => (get(Symbol(name), env), env)
-    case `nil` => (nil, env)
-    case _ => (expr, expr)
-  }
+  def eval(expr: Atom, env: Atom): Pair = ???
 }
 
 object Main extends App {
