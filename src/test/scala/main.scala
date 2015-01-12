@@ -7,6 +7,33 @@ class SispSpec extends FunSuite {
     assert(Integer(1).value == 1)
     assert(Symbol("dun").value == "dun")
     assert(nil == nil)
+    val a = BuiltIn(Symbol("+")) { _args: Atom =>
+      def sum(args: Atom): Int = args match {
+        case Pair(Integer(n), tl) => n + sum(tl)
+        case `nil` => 0
+      }
+      Integer(sum(_args))
+    }
+    sh(a.call(Pair(Integer(1), Pair(Integer(2), nil))))
+
+    val car = BuiltIn(Symbol("car")) { args: Atom =>
+      args match {
+        case Pair(hd, _) => hd
+        case `nil` => nil
+      }
+    }
+    sh(car.call(Pair(Integer(1), Pair(Integer(2), nil))))
+
+    val cdr = BuiltIn(Symbol("cdr")) { args: Atom =>
+      args match {
+        case Pair(_, tl) => tl
+        case `nil` => nil
+      }
+    }
+    sh(cdr.call(Pair(Integer(1), Pair(Integer(2), Pair(Integer(3), nil)))))
+
+    // assert(BuiltIn(Symbol("+"), Pair(Integer(1), Pair(Integer(2), nil))).name
+    //   == Symbol("+"))
   }
 
   test("show") {
@@ -33,7 +60,7 @@ class SispSpec extends FunSuite {
     val d = Pair(Symbol("d"), Integer(40))
 
     assert(show(Pair(a, Pair(b, Pair(c, Pair(d, nil))))) == "((a . 10) (b . 20) (c . 30) (d . 40))")
-    // show(cons(Builtin("+"), cons(Integer(1), cons(Integer(2), nil)))) mustEqual "(+ 1 2)"
+    // assert(show(BuiltIn(Symbol("+"), Pair(Integer(1), Pair(Integer(2), nil)))) == "(+ 1 2)")
   }
 
   test("predicate") {
@@ -91,56 +118,15 @@ class SispSpec extends FunSuite {
     val quote = Symbol("quote")
 
     var env = createEnv()
+
     var res = eval(env, Pair(define, Pair(Symbol("age"), Integer(10))))
     assert(cdr(res) == Integer(10))
     env = car(res)
 
     res = eval(env, Pair(quote, Pair(define, Pair(Symbol("age"), Integer(10)))))
     assert(cdr(res) == Pair(define, Pair(Symbol("age"), Integer(10))))
-    sh(car(res))
     env = car(res)
   }
-
-  // test("eval") {
-  //   import Environment._
-  //   implicit var env: Atom = createEnv
-  //   def evalTest(expr: Atom)(implicit ev: Atom): Atom = {
-  //     val (res, e) = eval(expr, ev)
-  //     env = e
-  //     res
-  //   }
-
-  //   println(show(env))
-
-  //   assert(
-  //     Symbol("foo") ==
-  //       evalTest(Pair(Symbol("define"), Pair(Symbol("foo"), Integer(10))))
-  //   )
-
-  //   println(show(env))
-
-  //   assert(
-  //     evalTest(Symbol("foo")) == Integer(10)
-  //   )
-
-  //   assert(
-  //     evalTest(Integer(10)) == Integer(10)
-  //   )
-
-  //   assert(
-  //     Symbol("foo") ==
-  //       evalTest(Pair(Symbol("define"), Pair(Symbol("foo"),
-  //         Pair(Integer(1), Pair(Integer(2), Pair(Integer(3), nil)))
-  //       )))
-  //   )
-
-  //   assert(
-  //     evalTest(Symbol("foo")) ==
-  //       Pair(Integer(1), Pair(Integer(2), Pair(Integer(3), nil)))
-  //   )
-
-  //   println(show(env))
-  // }
 
   // // lexer
   // Lexer.lex("(foo bar)") mustEqual List("(", "foo", "bar", ")")
