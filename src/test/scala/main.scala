@@ -14,7 +14,7 @@ class SispSpec extends FunSuite {
       }
       Integer(sum(_args))
     }
-    sh(a.call(Pair(Integer(1), Pair(Integer(2), nil))))
+    // sh(a.call(Pair(Integer(1), Pair(Integer(2), nil))))
 
     val car = BuiltIn(Symbol("car")) { args: Atom =>
       args match {
@@ -22,7 +22,7 @@ class SispSpec extends FunSuite {
         case `nil` => nil
       }
     }
-    sh(car.call(Pair(Integer(1), Pair(Integer(2), nil))))
+    // sh(car.call(Pair(Integer(1), Pair(Integer(2), nil))))
 
     val cdr = BuiltIn(Symbol("cdr")) { args: Atom =>
       args match {
@@ -30,7 +30,7 @@ class SispSpec extends FunSuite {
         case `nil` => nil
       }
     }
-    sh(cdr.call(Pair(Integer(1), Pair(Integer(2), Pair(Integer(3), nil)))))
+    // sh(cdr.call(Pair(Integer(1), Pair(Integer(2), Pair(Integer(3), nil)))))
 
     // assert(BuiltIn(Symbol("+"), Pair(Integer(1), Pair(Integer(2), nil))).name
     //   == Symbol("+"))
@@ -112,6 +112,13 @@ class SispSpec extends FunSuite {
     assert(Integer(100) == get(env, Symbol("a"))) // find from parent
   }
 
+  test("closure") {
+    import Environment._
+    var env = createEnv()
+    env = set(env, Symbol("age"), Integer(10))
+    val args = Pair(Symbol("age"), Pair(Integer(2), nil))
+  }
+
   test("eval") {
     import Environment._
     val define = Symbol("define")
@@ -123,6 +130,7 @@ class SispSpec extends FunSuite {
     assert(cdr(res) == Integer(10))
     env = car(res)
 
+    // sh(Pair(define, Pair(Symbol("age"), Integer(10))))
     res = eval(env, Pair(quote, Pair(define, Pair(Symbol("age"), Integer(10)))))
     assert(cdr(res) == Pair(define, Pair(Symbol("age"), Integer(10))))
     env = car(res)

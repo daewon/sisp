@@ -11,11 +11,10 @@ object Sisp {
   case class Pair(car: Atom, cdr: Atom) extends Atom
   case class Integer(value: Int) extends Atom
   case class Symbol(value: String) extends Atom
-  case class BuiltIn(name: Symbol)(fn: Atom => Atom) extends Atom {
-    def call = fn
-  }
+  case class BuiltIn(name: Symbol)(val call: Atom => Atom) extends Atom
+  case class Closure(env: Atom, name: Symbol) extends Atom
 
-  // default functions
+  // built-in functions
   def cons(car: Atom, cdr: Atom): Atom = Pair(car, cdr)
   def car(expr: Atom) = expr match { case Pair(car, _) => car }
   def cdr(expr: Atom) = expr match { case Pair(_, cdr) => cdr }
@@ -56,6 +55,7 @@ object Sisp {
       case Integer(n) => n.toString
       case Symbol(str) => str
       case BuiltIn(Symbol(name)) => showCar(Pair(Symbol(name), nil))
+      case Closure(_, Symbol(name)) => showCar(Pair(Symbol(name), nil))
       case `nil` => ""
     }
 
@@ -98,11 +98,6 @@ object Sisp {
     }
   }
 
-  def apply(name: Symbol, args: Atom): Atom = name match {
-    case Symbol("+") =>
-      Integer(car(args).asInstanceOf[Integer].value + cdr(args).asInstanceOf[Integer].value)
-  }
-
   // eval
   import Environment._
   def eval(env: Atom, expr: Atom): Pair = expr match {
@@ -112,9 +107,9 @@ object Sisp {
     case Pair(Symbol(name), Pair(Symbol(k), v)) if name == "quote" =>
       val newEnv = set(env, Symbol(name), Pair(Symbol(k), v))
       Pair(newEnv, cdr(cadr(newEnv)))
-    // case BuiltIn(Symbol(name), args: Atom) =>
-    //   apply(Symbol(name), args)
-    //   Pair(env, env)
+    case Pair(Symbol(name), Pair(Symbol(k), v)) if name == "lambda" =>
+      val newEnv = set(env, Symbol(name), Pair(Symbol(k), v))
+      Pair(newEnv, cdr(cadr(newEnv)))
     case _ => Pair(env, env)
   }
 }
