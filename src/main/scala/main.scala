@@ -12,17 +12,18 @@ object Sisp {
   case class Integer(value: Int) extends Atom
   case class Symbol(value: String) extends Atom
   case class BuiltIn(name: Symbol)(val call: Atom => Atom) extends Atom
-  case class Closure(env: Atom, name: Symbol) extends Atom
+  case class Closure(env: Atom, name: Symbol, args: Atom, body: Atom) extends Atom
 
   // built-in functions
   def cons(car: Atom, cdr: Atom): Atom = Pair(car, cdr)
-  def car(expr: Atom) = expr match { case Pair(car, _) => car }
-  def cdr(expr: Atom) = expr match { case Pair(_, cdr) => cdr }
-  def cadr(expr: Atom) = car(cdr(expr))
+  def car(pair: Atom) = pair match { case Pair(car, _) => car }
+  def cdr(pair: Atom) = pair match { case Pair(_, cdr) => cdr }
+  def cadr(pair: Atom) = car(cdr(pair))
+  def list(args: Atom*): Atom =
+    if (args.isEmpty || args.head == nil) nil
+    else Pair(args.head, list(args.tail:_*))
 
   // predicate functions
-
-  // nil
   def nilp(expr: Atom) = expr == nil
   @tailrec def listp(expr: Atom): Boolean = expr match {
     case Pair(_, cdr) => listp(cdr)
@@ -55,7 +56,7 @@ object Sisp {
       case Integer(n) => n.toString
       case Symbol(str) => str
       case BuiltIn(Symbol(name)) => showCar(Pair(Symbol(name), nil))
-      case Closure(_, Symbol(name)) => showCar(Pair(Symbol(name), nil))
+      case Closure(_, Symbol(name), _, _) => showCar(Pair(Symbol(name), nil))
       case `nil` => ""
     }
 
@@ -110,6 +111,10 @@ object Sisp {
     case Pair(Symbol(name), Pair(Symbol(k), v)) if name == "lambda" =>
       val newEnv = set(env, Symbol(name), Pair(Symbol(k), v))
       Pair(newEnv, cdr(cadr(newEnv)))
+    case Symbol(name) => Pair(env, Symbol(name))
+    case Integer(n) => Pair(env, Integer(n))
+    case BuiltIn(Symbol(name)) =>
+      Pair(nil, cdr(cadr(nil)))
     case _ => Pair(env, env)
   }
 }

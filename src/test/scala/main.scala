@@ -7,14 +7,13 @@ class SispSpec extends FunSuite {
     assert(Integer(1).value == 1)
     assert(Symbol("dun").value == "dun")
     assert(nil == nil)
-    val a = BuiltIn(Symbol("+")) { _args: Atom =>
+    val add = BuiltIn(Symbol("+")) { _args: Atom =>
       def sum(args: Atom): Int = args match {
         case Pair(Integer(n), tl) => n + sum(tl)
         case `nil` => 0
       }
       Integer(sum(_args))
     }
-    // sh(a.call(Pair(Integer(1), Pair(Integer(2), nil))))
 
     val car = BuiltIn(Symbol("car")) { args: Atom =>
       args match {
@@ -22,7 +21,6 @@ class SispSpec extends FunSuite {
         case `nil` => nil
       }
     }
-    // sh(car.call(Pair(Integer(1), Pair(Integer(2), nil))))
 
     val cdr = BuiltIn(Symbol("cdr")) { args: Atom =>
       args match {
@@ -30,10 +28,14 @@ class SispSpec extends FunSuite {
         case `nil` => nil
       }
     }
-    // sh(cdr.call(Pair(Integer(1), Pair(Integer(2), Pair(Integer(3), nil)))))
+  }
 
-    // assert(BuiltIn(Symbol("+"), Pair(Integer(1), Pair(Integer(2), nil))).name
-    //   == Symbol("+"))
+  test("list") {
+    val a = Symbol("a")
+    val b = Symbol("b")
+    val c = Integer(10)
+    assert(list(a, b) == Pair(a, Pair(b, nil)))
+    assert(list(a, b, c) == Pair(a, Pair(b, Pair(c, nil))))
   }
 
   test("show") {
@@ -123,6 +125,13 @@ class SispSpec extends FunSuite {
     import Environment._
     val define = Symbol("define")
     val quote = Symbol("quote")
+
+    val builtInCar = BuiltIn(Symbol("car")) { args: Atom =>
+      args match {
+        case Pair(hd, _) => hd
+        case `nil` => nil
+      }
+    }
 
     var env = createEnv()
 
