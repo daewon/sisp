@@ -7,26 +7,12 @@ class SispSpec extends FunSuite {
     assert(Integer(1).value == 1)
     assert(Symbol("dun").value == "dun")
     assert(nil == nil)
-    val add = BuiltIn(Symbol("+")) { _args: Atom =>
+    val add = BuiltIn { _args: Atom =>
       def sum(args: Atom): Int = args match {
         case Pair(Integer(n), tl) => n + sum(tl)
         case `nil` => 0
       }
       Integer(sum(_args))
-    }
-
-    val car = BuiltIn(Symbol("car")) { args: Atom =>
-      args match {
-        case Pair(hd, _) => hd
-        case `nil` => nil
-      }
-    }
-
-    val cdr = BuiltIn(Symbol("cdr")) { args: Atom =>
-      args match {
-        case Pair(_, tl) => tl
-        case `nil` => nil
-      }
     }
   }
 
@@ -125,24 +111,21 @@ class SispSpec extends FunSuite {
     import Environment._
     val define = Symbol("define")
     val quote = Symbol("quote")
-
-    val builtInCar = BuiltIn(Symbol("car")) { args: Atom =>
-      args match {
-        case Pair(hd, _) => hd
-        case `nil` => nil
-      }
-    }
-
     var env = createEnv()
+    var value: Atom = nil
 
-    var res = eval(env, Pair(define, Pair(Symbol("age"), Integer(10))))
-    assert(cdr(res) == Integer(10))
-    env = car(res)
+    val builtInCar = BuiltIn { args: Atom => args match {
+      case Pair(hd, _) => hd
+      case `nil` => nil
+    }}
 
-    // sh(Pair(define, Pair(Symbol("age"), Integer(10))))
-    res = eval(env, Pair(quote, Pair(define, Pair(Symbol("age"), Integer(10)))))
-    assert(cdr(res) == Pair(define, Pair(Symbol("age"), Integer(10))))
-    env = car(res)
+    env = set(env, Symbol("car"), builtInCar)
+
+    val ret = eval(env, Pair(Symbol("car"), list(Integer(11), Integer(22))))
+    env = car(ret)
+    value = cdr(ret)
+    assert(value == Integer(11))
+    sh(env)
   }
 
   // // lexer

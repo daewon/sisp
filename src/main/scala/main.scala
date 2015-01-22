@@ -11,7 +11,7 @@ object Sisp {
   case class Pair(car: Atom, cdr: Atom) extends Atom
   case class Integer(value: Int) extends Atom
   case class Symbol(value: String) extends Atom
-  case class BuiltIn(name: Symbol)(val call: Atom => Atom) extends Atom
+  case class BuiltIn(val call: Atom => Atom) extends Atom
   case class Closure(env: Atom, name: Symbol, args: Atom, body: Atom) extends Atom
 
   // built-in functions
@@ -42,8 +42,8 @@ object Sisp {
   def show(expr: Atom): String = {
     def paren(s: String) = "(" + s + ")"
     def showCdr(expr: Atom): String = expr match {
-      case Pair(Pair(a, b), Pair(c, d)) => showCar(Pair(a, b)) + " " + showCdr(Pair(c, d))
-      case Pair(Pair(hd, tl), tail) => showCar(Pair(hd, tl)) + " " + showCar(tail)
+      case Pair(a@Pair(_, _), b@Pair(_, _)) => showCar(a) + " " + showCdr(b)
+      case Pair(a@Pair(_, _), tail) => showCar(a) + " " + showCar(tail)
       case Pair(hd, tl) => showCdr(hd) + " " + showCdr(tl)
       case _ => showCar(expr)
     }
@@ -55,7 +55,7 @@ object Sisp {
       case Pair(hd, tl) => paren(showCar(hd) + " . " + showCdr(tl))
       case Integer(n) => n.toString
       case Symbol(str) => str
-      case BuiltIn(Symbol(name)) => showCar(Pair(Symbol(name), nil))
+      case BuiltIn(fn) => showCar(Symbol("built-in"))
       case Closure(_, Symbol(name), _, _) => showCar(Pair(Symbol(name), nil))
       case `nil` => ""
     }
@@ -76,7 +76,7 @@ object Sisp {
 
     def unset(env: Atom, target: Symbol): Atom = {
       def _unset(env: Atom): Atom = env match {
-        case Pair(Pair(Symbol(name), _), tl) if Symbol(name) == target => _unset(tl)
+        case Pair(Pair(s@Symbol(_), _), tl) if s == target => _unset(tl)
         case Pair(hd, tl) => Pair(hd, _unset(tl))
         case `nil` => nil
       }
@@ -86,7 +86,7 @@ object Sisp {
 
     def get(env: Atom, symbol: Atom): Atom = {
       @tailrec def _find(lst: Atom): Atom = lst match {
-        case Pair(Pair(Symbol(name), v), tl) if Symbol(name) == symbol => v
+        case Pair(Pair(s@Symbol(_), v), tl) if s == symbol => v
         case Pair(_, tl) => _find(tl)
         case `nil` => nil
       }
@@ -102,20 +102,18 @@ object Sisp {
   // eval
   import Environment._
   def eval(env: Atom, expr: Atom): Pair = expr match {
-    case Pair(Symbol(name), Pair(Symbol(k), v)) if name == "define" =>
-      val newEnv = set(env, Symbol(k), v)
-      Pair(newEnv, cdr(cadr(newEnv)))
-    case Pair(Symbol(name), Pair(Symbol(k), v)) if name == "quote" =>
-      val newEnv = set(env, Symbol(name), Pair(Symbol(k), v))
-      Pair(newEnv, cdr(cadr(newEnv)))
-    case Pair(Symbol(name), Pair(Symbol(k), v)) if name == "lambda" =>
-      val newEnv = set(env, Symbol(name), Pair(Symbol(k), v))
-      Pair(newEnv, cdr(cadr(newEnv)))
-    case Symbol(name) => Pair(env, Symbol(name))
-    case Integer(n) => Pair(env, Integer(n))
-    case BuiltIn(Symbol(name)) =>
-      Pair(nil, cdr(cadr(nil)))
-    case _ => Pair(env, env)
+    case Pair(Symbol(n), v@_) if n == "quote" => Pair(env, v)
+    case Pair(Symbol(n), Pair(k@Symbol(_), v)) if n == "define" => Pair(set(env, k, v), k)
+    case s@Symbol(name) => Pair(env, s)
+    case i@Integer(n) => Pair(env, i)
+    case Pair(s@Symbol(n), args) => get(env, s) match {
+      case BuiltIn(fn) => Pair(env, fn(args))
+      case _ => Pair(env, nil)
+    }
+    case x@_ => {
+      println("not match")
+      Pair(env, x)
+    }
   }
 }
 
