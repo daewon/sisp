@@ -90,7 +90,7 @@ class SispSpec extends FunSuite {
 
     // unset
     env = Pair(nil, parent) // createEnv with parent value
-    // unset values just current env, without parent env
+                            // unset values just current env, without parent env
     assert(Pair(nil, Pair(a, Pair(b, Pair(c, nil)))) == Pair(nil, unset(env, Symbol("d"))))
     assert(Pair(nil, Pair(b, Pair(c, Pair(d, nil)))) == Pair(nil, unset(env, Symbol("a"))))
     assert(Pair(nil, Pair(a, Pair(c, Pair(d, nil)))) == Pair(nil, unset(env, Symbol("b"))))
@@ -272,88 +272,37 @@ class SispSpec extends FunSuite {
     value = cdr(ret)
     assert(value == Integer(3))
 
-    // val builtInCar = BuiltIn { _ match {
-    //   case Pair(hd, _) => hd
-    //   case `nil` => nil
-    // }}
+    // make build-in car function
+    val builtInCar = BuiltIn { _ match {
+      case Pair(hd, _) => hd
+      case `nil` => nil
+    }}
 
-    // // set car
-    // ret = eval(env, list(define, Symbol("car"), builtInCar))
-    // env = car(ret)
-    // value = cdr(ret)
+    val builtInCdr = BuiltIn { _ match {
+      case Pair(_, tl) => tl
+      case `nil` => nil
+    }}
 
-    // // eval car
-    // ret = eval(env, list(Symbol("car"), Integer(11), Integer(22)))
-    // env = car(ret)
-    // value = cdr(ret)
+    // set built-in functions
+    exp = list(define, Symbol("car"), builtInCar)
+    ret = eval(env, exp)
+    env = car(ret)
 
-    // assert(value == Integer(11))
+    exp = list(define, Symbol("cdr"), builtInCdr)
+    ret = eval(env, exp)
+    env = car(ret)
 
-    // val binaryAdd = BuiltIn { _ match {
-    //   case Pair(Integer(a), Pair(Integer(b), `nil`)) => Integer(a + b)
-    // }}
-    // env = set(env, Symbol("+"), binaryAdd)
+    exp = list(Symbol("car"), Integer(10), Integer(20))
+    ret = eval(env, exp)
+    env = car(ret)
+    value = cdr(ret)
+    assert(value == Integer(10))
 
-    // val cls = Closure(env,
-    //   list(Symbol("a"), Symbol("b")),
-    //   list(Symbol("+"), Symbol("a"), Symbol("b"))
-    // )
-    // ret = eval(env, list(define, Symbol("add"), cls))
-    // env = car(ret)
-
-    // // eval closure itself ((lambda (a b) (+ a b)) 1 2)
-    // ret = eval(env, list(cls, Integer(1), Integer(2)))
-    // value = cdr(ret)
-    // assert(Integer(3) == value)
-
-    // // eval expr (add 1 2)
-    // ret = eval(env, list(Symbol("add"), Integer(1), Integer(2)))
-    // env = car(ret)
-    // value = cdr(ret)
-    // assert(value == Integer(3))
-
-    // // (define make-adder (lambda (x) (lambda (y) (+ x y))))
-    // // MAKE-ADDER
-    // // > (define add-two (make-adder 2))
-    // // ADD-TWO
-    // // > (add-two 5)
-    // // 7
-    // val adderB = Closure(env,
-    //   list(Symbol("b")),
-    //   list(Symbol("+"), Symbol("a"), Symbol("b"))
-    // )
-
-    // val adderA = Closure(env,
-    //   list(Symbol("a")),
-    //   adderB
-    // )
-
-    // // test expression
-    // // (+ 1 2)
-    // var exp = list(Symbol("+"), Integer(1), Integer(2))
-    // ret = eval(env, exp)
-    // value = cdr(ret)
-    // assert(value == Integer(3))
-
-    // // (define a 100)
-    // exp = list(define, Symbol("a"), Integer(100))
-    // ret = eval(env, exp)
-    // env = car(ret)
-
-    // eval(env, Symbol("a"))
-
-    // env = car(ret)
-    // value = cdr(ret)
-    // sh(value)
-
-    // // (define add-ab (lambda (b) (+ a b)))
-    // exp = list(define, Symbol("add-ab"), adderB)
-
-    // // exp = list(define, Symbol("make-adder"), adderA)
-    // // ret = eval(env, exp)
-    // // env = car(ret)
-    // // value = cdr(ret) // make-adder
-
+    exp = list(Symbol("cdr"), Integer(10), Integer(20))
+    ret = eval(env, exp)
+    env = car(ret)
+    value = cdr(ret)
+    assert(value == list(Integer(20)))
   }
 
   // // lexer

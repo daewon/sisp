@@ -19,7 +19,7 @@ object Sisp {
   def car(pair: Atom) = pair match { case Pair(car, _) => car }
   def cdr(pair: Atom) = pair match { case Pair(_, cdr) => cdr }
   def cadr(pair: Atom) = car(cdr(pair))
-  def list(args: Atom*): Atom =
+  def list(args: Atom*): Atom = // helper function for test
     if (args.isEmpty || args.head == nil) nil
     else Pair(args.head, list(args.tail:_*))
 
@@ -116,6 +116,7 @@ object Sisp {
   def eval(env: Atom, expr: Atom): Pair = expr match {
     case s@Symbol(name) => Pair(env, get(env, s))
     case i@Integer(n) => Pair(env, i)
+    case b@BuiltIn(fn) => Pair(env, b)
     case Pair(Symbol("quote"), v@_) => Pair(env, v)
     case Pair(Symbol("define"), Pair(k@Symbol(_), Pair(v, `nil`))) =>
       val ret = eval(env, v)
@@ -125,15 +126,12 @@ object Sisp {
     case Pair(Symbol("lambda"), tl) => tl match {
       case Pair(args@Pair(_, nil), Pair(body, `nil`)) => Pair(env, Closure(env, args, body))
     }
-    case Pair(s@Symbol(n), args) => get(env, s) match { // Apply
+    case Pair(Closure(env, names, body), args) => eval(bindEnv(env, names, args), body)
+    case Pair(s@Symbol(n), args) => get(env, s) match {
       case BuiltIn(fn) => Pair(env, fn(mapArgs(env, args)))
       case Closure(env, names, body) => eval(bindEnv(env, names, args), body)
     }
-    case Pair(Closure(env, names, body), args) =>
-      // (lambda (a) (lambda (b) (+ a b))) 1)
-      eval(bindEnv(env, names, args), body)
     case _ =>
-      // (((lambda (a) (lambda (b) (+ a b))) 1) 2) == 3
       val fn = car(expr)
       val args = cdr(expr)
       val ret = eval(env, fn)
