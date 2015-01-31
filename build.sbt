@@ -32,4 +32,5 @@ initialCommands in console += """
 import scala.language._
 import scala.language.implicitConversions._
 import com.daewon.sisp._
+import com.daewon.sisp.Sisp._
 """
