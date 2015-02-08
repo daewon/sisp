@@ -174,7 +174,6 @@ object Sisp {
   object Helpers {
     implicit def toInteger(n: Int): Integer = Integer(n)
     implicit def toSymbol(s: Symbol): Sym = Sym(s)
-    implicit def toSymbol(s: String): Sym = Sym(Symbol(s))
     implicit def toPair[T <% Atom](a: Tuple2[T, T]): Pair = Pair(a._1, a._2)
 
     def l(args: Atom*): Atom = // helper function for test

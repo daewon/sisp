@@ -75,8 +75,8 @@ class SispSpec extends FunSuite {
     assert(listp(Pair(Integer(1), Integer(2))) == false)
 
     // ((dun . 1) . 2)
-    assert(pairp(Pair(Pair("dun", Integer(1)), Integer(2))))
-    assert(listp(Pair(Pair("dun", Integer(1)), Integer(2))) == false)
+    assert(pairp(Pair(Pair('dun, Integer(1)), Integer(2))))
+    assert(listp(Pair(Pair('dun, Integer(1)), Integer(2))) == false)
   }
 
   test("env") {
@@ -226,7 +226,7 @@ class SispSpec extends FunSuite {
     assert(value == Integer(200))
 
     // (define make-adder (lambda (a) (lambda (b) (+ a b))))
-    exp = l('define, "make-adder",
+    exp = l('define, Sym("make-adder"),
       l('lambda, l('a),
         l('lambda, l('b),
           l('+, 'a, 'b))))
@@ -234,11 +234,10 @@ class SispSpec extends FunSuite {
     ret = eval(env, exp)
     env = car(ret)
     value = cdr(ret)
-    sh(Sym("make-adder"))
     assert(value == Sym("make-adder"))
 
     // make-adder
-    exp = "make-adder"
+    exp = Sym("make-adder")
     ret = eval(env, exp)
     env = car(ret)
     value = cdr(ret)
@@ -251,7 +250,7 @@ class SispSpec extends FunSuite {
 
     val closureEnv = createEnv(env)
     // (make-adder 10)
-    exp = l("make-adder", 10)
+    exp = l(Sym("make-adder"), 10)
     ret = eval(env, exp)
     env = car(ret)
     value = cdr(ret)
