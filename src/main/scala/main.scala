@@ -11,6 +11,9 @@ object Sisp {
   case class Pair(car: Atom, cdr: Atom) extends Atom
   case class Integer(value: Int) extends Atom
   case class Sym(value: Symbol) extends Atom
+  object Sym {
+    def apply(str: String) = new Sym(Symbol(str))
+  }
   case class BuiltIn(val call: Atom => Atom) extends Atom
   case class Closure(var env: Atom, args: Atom, body: Atom) extends Atom
 
@@ -171,6 +174,7 @@ object Sisp {
   object Helpers {
     implicit def toInteger(n: Int): Integer = Integer(n)
     implicit def toSymbol(s: Symbol): Sym = Sym(s)
+    implicit def toSymbol(s: String): Sym = Sym(Symbol(s))
     implicit def toPair[T <% Atom](a: Tuple2[T, T]): Pair = Pair(a._1, a._2)
 
     def l(args: Atom*): Atom = // helper function for test

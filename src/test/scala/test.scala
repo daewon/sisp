@@ -75,8 +75,8 @@ class SispSpec extends FunSuite {
     assert(listp(Pair(Integer(1), Integer(2))) == false)
 
     // ((dun . 1) . 2)
-    assert(pairp(Pair(Pair(Symbol("dun"), Integer(1)), Integer(2))))
-    assert(listp(Pair(Pair(Symbol("dun"), Integer(1)), Integer(2))) == false)
+    assert(pairp(Pair(Pair("dun", Integer(1)), Integer(2))))
+    assert(listp(Pair(Pair("dun", Integer(1)), Integer(2))) == false)
   }
 
   test("env") {
@@ -200,12 +200,12 @@ class SispSpec extends FunSuite {
       case Pair(Integer(a), Pair(Integer(b), `nil`)) => Integer(a * b)
     }}
 
-    env = set(env, Symbol("+"), binaryAdd)
-    env = set(env, Symbol("-"), binarySub)
-    env = set(env, Symbol("*"), binaryMul)
+    env = set(env, '+, binaryAdd)
+    env = set(env, '-, binarySub)
+    env = set(env, '*, binaryMul)
 
     // (+ 100 200) == 300
-    exp = l(Symbol("+"), Integer(100), Integer(200))
+    exp = l('+, 100, 200)
     ret = eval(env, exp)
     env = car(ret)
     value = cdr(ret)
@@ -226,7 +226,7 @@ class SispSpec extends FunSuite {
     assert(value == Integer(200))
 
     // (define make-adder (lambda (a) (lambda (b) (+ a b))))
-    exp = l('define, Symbol("make-adder"),
+    exp = l('define, "make-adder",
       l('lambda, l('a),
         l('lambda, l('b),
           l('+, 'a, 'b))))
@@ -234,10 +234,11 @@ class SispSpec extends FunSuite {
     ret = eval(env, exp)
     env = car(ret)
     value = cdr(ret)
-    assert(value == Sym(Symbol("make-adder")))
+    sh(Sym("make-adder"))
+    assert(value == Sym("make-adder"))
 
     // make-adder
-    exp = Symbol("make-adder")
+    exp = "make-adder"
     ret = eval(env, exp)
     env = car(ret)
     value = cdr(ret)
@@ -250,7 +251,7 @@ class SispSpec extends FunSuite {
 
     val closureEnv = createEnv(env)
     // (make-adder 10)
-    exp = l(Symbol("make-adder"), 10)
+    exp = l("make-adder", 10)
     ret = eval(env, exp)
     env = car(ret)
     value = cdr(ret)
@@ -316,14 +317,14 @@ class SispSpec extends FunSuite {
     env = set(env, 't, 't)
 
     // t == true
-    exp = Symbol("t")
+    exp = 't
     ret = eval(env, exp)
     env = car(ret)
     value = cdr(ret)
     assert(value == Sym('t))
 
     // nil == false
-    exp = Symbol("nil")
+    exp = 'nil
     ret = eval(env, exp)
     env = car(ret)
     value = cdr(ret)
@@ -346,7 +347,7 @@ class SispSpec extends FunSuite {
     assert(value == Integer(4))
 
     val equal = BuiltIn { args: Atom =>
-      if (car(args) == cadr(args)) Symbol("t")
+      if (car(args) == cadr(args)) Sym('t)
       else nil
     }
 
