@@ -162,7 +162,7 @@ object Sisp {
       val args = cdr(expr)
 
       val ret = head match {
-        case BuiltIn(fn) => fn(mapArgs(createEnv(env), args))
+        case BuiltIn(fn) => fn(mapArgs(env, args))
         case Closure(ev, names, body) =>
           cdr(eval(bindEnv(ev, names, mapArgs(env, args)), body))
       }
