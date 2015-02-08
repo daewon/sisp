@@ -296,20 +296,17 @@ class SispSpec extends FunSuite {
     }}
 
     // set built-in functions
-    exp = l('define, 'car, builtInCar)
-    ret = eval(env, exp)
-    env = car(ret)
+    env = set(env, 'car, builtInCar)
+    env = set(env, 'cdr, builtInCdr)
 
-    exp = l('define, 'cdr, builtInCdr)
-    ret = eval(env, exp)
-    env = car(ret)
-
+    // (car 10 20)
     exp = l('car, 10, 20)
     ret = eval(env, exp)
     env = car(ret)
     value = cdr(ret)
     assert(value == Integer(10))
 
+    // (cdr 10 20)
     exp = l('cdr, 10, 20)
     ret = eval(env, exp)
     env = car(ret)
@@ -333,12 +330,15 @@ class SispSpec extends FunSuite {
     assert(value == nil)
 
     // make if
+
+    // (if t 3 4)
     exp = l('if, 't, 3, 4)
     ret = eval(env, exp)
     env = car(ret)
     value = cdr(ret)
     assert(value == Integer(3))
 
+    // (if nil 3 4)
     exp = l('if, 'nil, 3, 4)
     ret = eval(env, exp)
     env = car(ret)
