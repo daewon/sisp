@@ -19,9 +19,6 @@ object Sisp {
   def car(pair: Atom) = pair match { case Pair(car, _) => car }
   def cdr(pair: Atom) = pair match { case Pair(_, cdr) => cdr }
   def cadr(pair: Atom) = car(cdr(pair))
-  def l(args: Atom*): Atom = // helper function for test
-    if (args.isEmpty || args.head == nil) nil
-    else Pair(args.head, l(args.tail:_*))
 
   // predicate functions
   def nilp(expr: Atom) = expr == nil
@@ -175,6 +172,10 @@ object Sisp {
     implicit def toInteger(n: Int): Integer = Integer(n)
     implicit def toSymbol(s: Symbol): Sym = Sym(s)
     implicit def toPair[T <% Atom](a: Tuple2[T, T]): Pair = Pair(a._1, a._2)
+
+    def l(args: Atom*): Atom = // helper function for test
+      if (args.isEmpty || args.head == nil) nil
+      else Pair(args.head, l(args.tail:_*))
   }
 }
 
