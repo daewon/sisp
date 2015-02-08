@@ -21,8 +21,8 @@ class SispSpec extends FunSuite {
   }
 
   test("list") {
-    assert(list('a, 'b) == Pair(Sym('a), Pair(Sym('b), nil)))
-    assert(list('a, 'b, 'c) == Pair(Sym('a), Pair(Sym('b), Pair(Sym('c), nil))))
+    assert(l('a, 'b) == Pair(Sym('a), Pair(Sym('b), nil)))
+    assert(l('a, 'b, 'c) == Pair(Sym('a), Pair(Sym('b), Pair(Sym('c), nil))))
   }
 
   test("show") {
@@ -58,7 +58,7 @@ class SispSpec extends FunSuite {
     assert(show(BuiltIn{_ => nil}) == "built-in <function1>")
 
     val lambdaPair =
-      Pair(Sym('a), list(Sym('lambda), list(Sym('a)), Sym('a)))
+      Pair(Sym('a), l(Sym('lambda), l(Sym('a)), Sym('a)))
 
     // special case for lambda pair
     assert(show(lambdaPair) == "(a . (lambda (a) a))")
@@ -113,14 +113,14 @@ class SispSpec extends FunSuite {
     env = set(env, 'age, 10)
     env = set(env, '+, add)
 
-    val expr = list('+, 1, 'age)
+    val expr = l('+, 1, 'age)
     ret = eval(env, expr)
     env = car(ret)
     value = cdr(ret)
     assert(value == Integer(11))
 
-    val cls = Closure(createEnv(env), list('a, 'b), list('+, 'a, 'b))
-    ret = eval(env, list(cls, 1, 2))
+    val cls = Closure(createEnv(env), l('a, 'b), l('+, 'a, 'b))
+    ret = eval(env, l(cls, 1, 2))
     env = car(ret)
     value = cdr(ret)
 
@@ -134,14 +134,14 @@ class SispSpec extends FunSuite {
     var exp: Atom = nil
 
     // (define a 10) == a
-    exp = list('define, 'a, 10)
+    exp = l('define, 'a, 10)
     ret = eval(env, exp)
     env = car(ret)
     value = cdr(ret)
     assert(value == Sym('a))
 
     // (define b 20) == b
-    exp = list('define, 'b, 20)
+    exp = l('define, 'b, 20)
     ret = eval(env, exp)
     env = car(ret)
     value = cdr(ret)
@@ -162,14 +162,14 @@ class SispSpec extends FunSuite {
     assert(value == Integer(100))
 
     // (lambda (a) a) == (lambda (a) a)
-    exp = list('lambda, list('a), 'a)
+    exp = l('lambda, l('a), 'a)
     ret = eval(env, exp)
     env = car(ret)
     value = cdr(ret)
-    assert(value == Closure(createEnv(env), list('a), 'a))
+    assert(value == Closure(createEnv(env), l('a), 'a))
 
     // (define id (lambda (a) a)) == id
-    exp = list('define, 'id, list('lambda, list('a), 'a))
+    exp = l('define, 'id, l('lambda, l('a), 'a))
     ret = eval(env, exp)
     env = car(ret)
     value = cdr(ret)
@@ -180,10 +180,10 @@ class SispSpec extends FunSuite {
     ret = eval(env, exp)
     env = car(ret)
     value = cdr(ret)
-    assert(value == Closure(createEnv(env), list('a), 'a))
+    assert(value == Closure(createEnv(env), l('a), 'a))
 
     // (id 100) == 100
-    exp = list('id, 100)
+    exp = l('id, 100)
     ret = eval(env, exp)
     env = car(ret)
     value = cdr(ret)
@@ -205,31 +205,31 @@ class SispSpec extends FunSuite {
     env = set(env, Symbol("*"), binaryMul)
 
     // (+ 100 200) == 300
-    exp = list(Symbol("+"), Integer(100), Integer(200))
+    exp = l(Symbol("+"), Integer(100), Integer(200))
     ret = eval(env, exp)
     env = car(ret)
     value = cdr(ret)
     assert(value == Integer(300))
 
     // (define x 100) == x
-    exp = list('define, 'x, 100)
+    exp = l('define, 'x, 100)
     ret = eval(env, exp)
     env = car(ret)
     value = cdr(ret)
     assert(value == Sym('x))
 
     // (+ x 100) == 200
-    exp = list('+, 100, 'x)
+    exp = l('+, 100, 'x)
     ret = eval(env, exp)
     env = car(ret)
     value = cdr(ret)
     assert(value == Integer(200))
 
     // (define make-adder (lambda (a) (lambda (b) (+ a b))))
-    exp = list('define, Symbol("make-adder"),
-      list('lambda, list('a),
-        list('lambda, list('b),
-          list('+, 'a, 'b))))
+    exp = l('define, Symbol("make-adder"),
+      l('lambda, l('a),
+        l('lambda, l('b),
+          l('+, 'a, 'b))))
 
     ret = eval(env, exp)
     env = car(ret)
@@ -244,13 +244,13 @@ class SispSpec extends FunSuite {
     assert(value ==
       Closure(
         createEnv(env),
-        list('a),
-        list('lambda, list('b), list('+, 'a, 'b)))
+        l('a),
+        l('lambda, l('b), l('+, 'a, 'b)))
     )
 
     val closureEnv = createEnv(env)
     // (make-adder 10)
-    exp = list(Symbol("make-adder"), 10)
+    exp = l(Symbol("make-adder"), 10)
     ret = eval(env, exp)
     env = car(ret)
     value = cdr(ret)
@@ -262,7 +262,7 @@ class SispSpec extends FunSuite {
     //     list('+, 'a, 'b)))
 
     // ((lambda (b) (+ a b)) 100) == 110
-    exp = list(value, 100)
+    exp = l(value, 100)
     ret = eval(env, exp)
     env = car(ret)
     value = cdr(ret)
@@ -270,11 +270,11 @@ class SispSpec extends FunSuite {
 
     // (((lambda (a) (lambda (b) (+ a b))) 1) 2) == 3
     exp =
-      list(
-        list(
-          list('lambda, list('a),
-            list('lambda, list('b),
-              list('+, 'a, 'b)
+      l(
+        l(
+          l('lambda, l('a),
+            l('lambda, l('b),
+              l('+, 'a, 'b)
             )),
           1),
         2)
@@ -296,25 +296,25 @@ class SispSpec extends FunSuite {
     }}
 
     // set built-in functions
-    exp = list('define, 'car, builtInCar)
+    exp = l('define, 'car, builtInCar)
     ret = eval(env, exp)
     env = car(ret)
 
-    exp = list('define, 'cdr, builtInCdr)
+    exp = l('define, 'cdr, builtInCdr)
     ret = eval(env, exp)
     env = car(ret)
 
-    exp = list('car, 10, 20)
+    exp = l('car, 10, 20)
     ret = eval(env, exp)
     env = car(ret)
     value = cdr(ret)
     assert(value == Integer(10))
 
-    exp = list('cdr, 10, 20)
+    exp = l('cdr, 10, 20)
     ret = eval(env, exp)
     env = car(ret)
     value = cdr(ret)
-    assert(value == list(Integer(20)))
+    assert(value == l(Integer(20)))
 
     env = set(env, 't, 't)
 
@@ -333,13 +333,13 @@ class SispSpec extends FunSuite {
     assert(value == nil)
 
     // make if
-    exp = list('if, 't, 3, 4)
+    exp = l('if, 't, 3, 4)
     ret = eval(env, exp)
     env = car(ret)
     value = cdr(ret)
     assert(value == Integer(3))
 
-    exp = list('if, 'nil, 3, 4)
+    exp = l('if, 'nil, 3, 4)
     ret = eval(env, exp)
     env = car(ret)
     value = cdr(ret)
@@ -352,40 +352,40 @@ class SispSpec extends FunSuite {
 
     // (if (= 1 1) 3 4)
     env = set(env, '=, equal)
-    exp = list('if, list('=, 1, 1), 3, 4)
+    exp = l('if, l('=, 1, 1), 3, 4)
     ret = eval(env, exp)
     env = car(ret)
     value = cdr(ret)
     assert(value == Integer(3))
 
     // (if (= 1 2) 3 4)
-    exp = list('if, list('=, 1, 2), 3, 4)
+    exp = l('if, l('=, 1, 2), 3, 4)
     ret = eval(env, exp)
     env = car(ret)
     value = cdr(ret)
     assert(value == Integer(4))
 
     // (* 2 ((lambda (x) (+ x 10) x)))
-    exp = list('*, 2, list(list('lambda, list('x), list('+, 'x, 'x)), 3))
+    exp = l('*, 2, l(l('lambda, l('x), l('+, 'x, 'x)), 3))
     ret = eval(env, exp)
     env = car(ret)
     value = cdr(ret)
     assert(value == Integer(12))
 
     // (define fact (lambda (x) (if (= x 0) 1 (* x (fact (- x 1))))))
-    exp = list(
+    exp = l(
       'define,
       'fact,
-      list('lambda, list('x),
-        list('if, list('=, 'x, 0), 1,
-          list('*, 'x, list('fact, list('-, 'x, 1)) ))))
+      l('lambda, l('x),
+        l('if, l('=, 'x, 0), 1,
+          l('*, 'x, l('fact, l('-, 'x, 1)) ))))
 
     ret = eval(env, exp)
     env = car(ret)
     value = cdr(ret)
     assert(value == Sym('fact))
 
-    exp = list('fact, 5)
+    exp = l('fact, 5)
     ret = eval(env, exp)
     env = car(ret)
     value = cdr(ret)

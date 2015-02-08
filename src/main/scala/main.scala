@@ -19,9 +19,9 @@ object Sisp {
   def car(pair: Atom) = pair match { case Pair(car, _) => car }
   def cdr(pair: Atom) = pair match { case Pair(_, cdr) => cdr }
   def cadr(pair: Atom) = car(cdr(pair))
-  def list(args: Atom*): Atom = // helper function for test
+  def l(args: Atom*): Atom = // helper function for test
     if (args.isEmpty || args.head == nil) nil
-    else Pair(args.head, list(args.tail:_*))
+    else Pair(args.head, l(args.tail:_*))
 
   // predicate functions
   def nilp(expr: Atom) = expr == nil
