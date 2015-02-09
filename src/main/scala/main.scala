@@ -133,14 +133,13 @@ object Sisp {
       val newEnv = car(ret)
       val value = cdr(ret)
 
-      if (value.isInstanceOf[Closure]) {
-        val resEnv = set(newEnv, k, value)
-        val cls = get(resEnv, k).asInstanceOf[Closure]
-        cls.env = createEnv(resEnv)
-        Pair(resEnv, k)
-      }
-      else {
-        Pair(set(newEnv, k, value), k)
+      value match {
+        case c@Closure(_, _, _) =>
+          val resEnv = set(newEnv, k, c)
+          c.env = createEnv(resEnv) // re-assign env to closure
+          Pair(resEnv, k)
+        case _ =>
+          Pair(set(newEnv, k, value), k)
       }
 
     case Pair(Sym('lambda), tl) =>
