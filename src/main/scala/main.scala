@@ -133,14 +133,12 @@ object Sisp {
       val ret = eval(env, v)
       val newEnv = car(ret)
       val value = cdr(ret)
-
       value match {
         case c@Closure(_, _, _) =>
           val resEnv = set(newEnv, k, c)
           c.env = createEnv(resEnv) // re-assign env to closure
           Pair(resEnv, k)
-        case _ =>
-          Pair(set(newEnv, k, value), k)
+        case _ => Pair(set(newEnv, k, value), k)
       }
 
     case Pair(Sym('lambda), tl) =>
@@ -179,18 +177,19 @@ object Sisp {
     def l(args: Atom*): Atom = // helper function for test
       if (args.isEmpty || args.head == nil) nil
       else Pair(args.head, l(args.tail:_*))
-  }
 
-  // parser
-  implicit class LisToPair(ls: List[Atom]) {
-    private def makePair(ls: List[Atom]): Atom = ls match {
-      case h :: tl => Pair(h, makePair(tl))
-      case Nil => nil
+    implicit class LisToPair(ls: List[Atom]) {
+      private def makePair(ls: List[Atom]): Atom = ls match {
+        case h :: tl => Pair(h, makePair(tl))
+        case Nil => nil
+      }
+      def toPair = makePair(ls)
     }
-    def toPair = makePair(ls)
   }
 
   class LispParser extends JavaTokenParsers  {
+    import Helpers._
+
     type A = Atom
     def expr: Parser[A] = "nil" ^^^ nil | pair | factor
     def pair: Parser[A] = "(" ~> rep(factor | expr) <~ ")" ^^ { case ls => ls.toPair }
@@ -198,6 +197,7 @@ object Sisp {
     def symbol: Parser[A] = "[\\=\\*\\+\\-\\?\\.a-zA-Z]+[0-9]*".r ^^ { case s => Sym(s) }
     def number: Parser[A] = wholeNumber ^^ { case a => Integer(a.toInt) }
   }
+
   object Parser extends LispParser {
     def parse(input: String) = {
       parseAll(expr, input) match {
