@@ -1,4 +1,12 @@
+/* references
+ http://www.furidamu.org/blog/2012/03/23/scalisp-a-lisp-interpreter-in-scala/
+ basic parser
+ http://stackoverflow.com/a/11533809/1513517
+ */
+
 import org.scalatest.FunSuite
+import scala.util._
+import scala.util.parsing.combinator._
 
 class SispSpec extends FunSuite {
   import com.daewon.sisp.Sisp._
@@ -392,9 +400,12 @@ class SispSpec extends FunSuite {
     assert(value == Integer(120))
   }
 
-  // // lexer
-  // Lexer.lex("(foo bar)") mustEqual List("(", "foo", "bar", ")")
-  // val plus = cons(Builtin("+"), cons(Integer(1), cons(Integer(2), nil)))
-  // val res = eval(cons(cons(Builtin("+"), Integer(3)), plus))
-  // println(show(res))
+  test("parser") {
+    assert(Integer(1) == Parser.parse("1") )
+    assert(Sym('+) == Parser.parse("+") )
+    assert(l('+, 1, 2) == Parser.parse("(+ 1 2)") )
+    assert(l('define, 'a, l('-, 1, 2)) == Parser.parse("(define a (- 1 2))"))
+    assert(Sym('t) == Parser.parse("t") )
+    assert(nil == Parser.parse("nil") )
+  }
 }

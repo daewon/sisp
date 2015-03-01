@@ -3,6 +3,7 @@
 package com.daewon.sisp
 import scala.annotation._
 import scala.util._
+import scala.util.parsing.combinator._
 
 object Sisp {
   // basic data types
@@ -178,6 +179,32 @@ object Sisp {
     def l(args: Atom*): Atom = // helper function for test
       if (args.isEmpty || args.head == nil) nil
       else Pair(args.head, l(args.tail:_*))
+  }
+
+  // parser
+  implicit class LisToPair(ls: List[Atom]) {
+    private def makePair(ls: List[Atom]): Atom = ls match {
+      case h :: tl => Pair(h, makePair(tl))
+      case Nil => nil
+    }
+    def toPair = makePair(ls)
+  }
+
+  class LispParser extends JavaTokenParsers  {
+    type A = Atom
+    def expr: Parser[A] = "nil" ^^^ nil | pair | factor
+    def pair: Parser[A] = "(" ~> rep(factor | expr) <~ ")" ^^ { case ls => ls.toPair }
+    def factor: Parser[A] = number | symbol
+    def symbol: Parser[A] = "[\\*\\+\\-\\?\\.a-zA-Z]+[0-9]*".r ^^ { case s => Sym(s) }
+    def number: Parser[A] = wholeNumber ^^ { case a => Integer(a.toInt) }
+  }
+  object Parser extends LispParser {
+    def parse(input: String) = {
+      parseAll(expr, input) match {
+        case Success(result, _) => result
+        case failure : NoSuccess => scala.sys.error(failure.msg)
+      }
+    }
   }
 }
 
