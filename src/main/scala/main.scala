@@ -1,6 +1,7 @@
 // reference: http://www.lwh.jp/lisp/
 
 package com.daewon.sisp
+
 import scala.annotation._
 import scala.util._
 import scala.util.parsing.combinator._
@@ -178,7 +179,7 @@ object Sisp {
       if (args.isEmpty || args.head == nil) nil
       else Pair(args.head, l(args.tail:_*))
 
-    implicit class LisToPair(ls: List[Atom]) {
+    implicit class ListToPair(ls: List[Atom]) {
       private def makePair(ls: List[Atom]): Atom = ls match {
         case h :: tl => Pair(h, makePair(tl))
         case Nil => nil
@@ -199,11 +200,9 @@ object Sisp {
   }
 
   object Parser extends LispParser {
-    def parse(input: String) = {
-      parseAll(expr, input) match {
-        case Success(result, _) => result
-        case failure : NoSuccess => scala.sys.error(failure.msg)
-      }
+    def parse(input: String) = parseAll(expr, input) match {
+      case Success(result, _) => result
+      case failure : NoSuccess => scala.sys.error(failure.msg)
     }
   }
 }
