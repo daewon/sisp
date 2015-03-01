@@ -139,7 +139,9 @@ class SispSpec extends FunSuite {
     var env = createEnv()
     var value: Atom = nil
     var ret: Atom = nil
+    var str: String = ""
     var exp: Atom = nil
+    var fromParser: Atom = nil
 
     // (define a 10) == a
     exp = l('define, 'a, 10)
@@ -276,7 +278,7 @@ class SispSpec extends FunSuite {
     value = cdr(ret)
     assert(value == Integer(110))
 
-    // (((lambda (a) (lambda (b) (+ a b))) 1) 2) == 3
+    str = "(((lambda (a) (lambda (b) (+ a b))) 1) 2)" // == 3
     exp =
       l(
         l(
@@ -286,6 +288,9 @@ class SispSpec extends FunSuite {
             )),
           1),
         2)
+
+    fromParser = Parser.parse(str)
+    assert(exp == fromParser)
 
     ret = eval(env, exp)
     env = car(ret)
@@ -307,15 +312,21 @@ class SispSpec extends FunSuite {
     env = set(env, 'car, builtInCar)
     env = set(env, 'cdr, builtInCdr)
 
-    // (car 10 20)
+    str = "(car 10 20)"
     exp = l('car, 10, 20)
+    fromParser = Parser.parse(str)
+    assert(exp == fromParser)
+
     ret = eval(env, exp)
     env = car(ret)
     value = cdr(ret)
     assert(value == Integer(10))
 
-    // (cdr 10 20)
+    str = "(cdr 10 20)"
     exp = l('cdr, 10, 20)
+    fromParser = Parser.parse(str)
+    assert(exp == fromParser)
+
     ret = eval(env, exp)
     env = car(ret)
     value = cdr(ret)
@@ -338,16 +349,21 @@ class SispSpec extends FunSuite {
     assert(value == nil)
 
     // make if
-
-    // (if t 3 4)
+    str = "(if t 3 4)"
     exp = l('if, 't, 3, 4)
+    fromParser = Parser.parse(str)
+    assert(exp == fromParser)
+
     ret = eval(env, exp)
     env = car(ret)
     value = cdr(ret)
     assert(value == Integer(3))
 
-    // (if nil 3 4)
+    str = "(if nil 3 4)"
     exp = l('if, 'nil, 3, 4)
+    fromParser = Parser.parse(str)
+    assert(exp == fromParser)
+
     ret = eval(env, exp)
     env = car(ret)
     value = cdr(ret)
@@ -358,35 +374,47 @@ class SispSpec extends FunSuite {
       else nil
     }
 
-    // (if (= 1 1) 3 4)
+    str = "(if (= 1 1) 3 4)"
     env = set(env, '=, equal)
     exp = l('if, l('=, 1, 1), 3, 4)
+    fromParser = Parser.parse(str)
+    assert(exp == fromParser)
+
     ret = eval(env, exp)
     env = car(ret)
     value = cdr(ret)
     assert(value == Integer(3))
 
-    // (if (= 1 2) 3 4)
+    str = "(if (= 1 2) 3 4)"
     exp = l('if, l('=, 1, 2), 3, 4)
+    fromParser = Parser.parse(str)
+    assert(exp == fromParser)
+
     ret = eval(env, exp)
     env = car(ret)
     value = cdr(ret)
     assert(value == Integer(4))
 
-    // (* 2 ((lambda (x) (+ x 10) x)))
+    str = "(* 2 ((lambda (x) (+ x x)) 3))"
     exp = l('*, 2, l(l('lambda, l('x), l('+, 'x, 'x)), 3))
+    fromParser = Parser.parse(str)
+    assert(exp == fromParser)
+
     ret = eval(env, exp)
     env = car(ret)
     value = cdr(ret)
     assert(value == Integer(12))
 
-    // (define fact (lambda (x) (if (= x 0) 1 (* x (fact (- x 1))))))
+    str = "(define fact (lambda (x) (if (= x 0) 1 (* x (fact (- x 1))))))"
     exp = l(
       'define,
       'fact,
       l('lambda, l('x),
         l('if, l('=, 'x, 0), 1,
           l('*, 'x, l('fact, l('-, 'x, 1)) ))))
+
+    fromParser = Parser.parse(str)
+    assert(exp == fromParser)
 
     ret = eval(env, exp)
     env = car(ret)
@@ -398,6 +426,7 @@ class SispSpec extends FunSuite {
     env = car(ret)
     value = cdr(ret)
     assert(value == Integer(120))
+
   }
 
   test("parser") {

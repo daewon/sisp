@@ -195,7 +195,7 @@ object Sisp {
     def expr: Parser[A] = "nil" ^^^ nil | pair | factor
     def pair: Parser[A] = "(" ~> rep(factor | expr) <~ ")" ^^ { case ls => ls.toPair }
     def factor: Parser[A] = number | symbol
-    def symbol: Parser[A] = "[\\*\\+\\-\\?\\.a-zA-Z]+[0-9]*".r ^^ { case s => Sym(s) }
+    def symbol: Parser[A] = "[\\=\\*\\+\\-\\?\\.a-zA-Z]+[0-9]*".r ^^ { case s => Sym(s) }
     def number: Parser[A] = wholeNumber ^^ { case a => Integer(a.toInt) }
   }
   object Parser extends LispParser {
