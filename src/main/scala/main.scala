@@ -13,9 +13,7 @@ object Sisp {
   case class Pair(car: Atom, cdr: Atom) extends Atom
   case class Integer(value: Int) extends Atom
   case class Sym(value: Symbol) extends Atom
-  object Sym {
-    def apply(str: String) = new Sym(Symbol(str))
-  }
+  object Sym { def apply(str: String) = new Sym(Symbol(str))  }
   case class BuiltIn(val call: Atom => Atom) extends Atom
   case class Closure(var env: Atom, args: Atom, body: Atom) extends Atom
 
