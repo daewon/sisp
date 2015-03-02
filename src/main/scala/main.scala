@@ -52,8 +52,8 @@ object Sisp {
 
     // ((a . 10) (b . 20) (c . 30) (d . 40))
     def showCar(expr: Atom): String = expr match {
-      // special case for lambda
-      case Pair(s@Sym(n), c@Pair(Sym('lambda), _)) => paren(showCar(s) + " . " + showCar(c))
+      case Pair(s@Sym(n), c@Pair(Sym('lambda), _)) => paren(showCar(s) + " . " + showCar(c)) // special case for lambda
+      case Pair(Sym('quote), Pair(h, t)) => paren(showCdr(Pair(h, t)).trim)
       case Pair(hd, Pair(h, t)) => paren((showCar(hd) + " " + showCdr(Pair(h, t))).trim)
       case Pair(hd, `nil`) => paren(showCar(hd))
       case Pair(hd, tl) => paren(showCar(hd) + " . " + showCdr(tl))

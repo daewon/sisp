@@ -430,7 +430,7 @@ class SispSpec extends FunSuite {
   }
 
   test("parser") {
-    println(sh(Parser.parse("`(+ 1 2)")))
+    sh(Parser.parse("`(+ 1 `(- 1 2))"))
     assert(Integer(1) == Parser.parse("1"))
     assert(Sym('+) == Parser.parse("+"))
     assert(l('+, 1, 2) == Parser.parse("(+ 1 2)"))
