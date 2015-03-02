@@ -179,8 +179,8 @@ object Sisp {
       if (args.isEmpty || args.head == nil) nil
       else Pair(args.head, l(args.tail:_*))
 
-    implicit class ListToPair(ls: List[Atom]) {
-      private def makePair(ls: List[Atom]): Atom = ls match {
+    implicit class ListToPair[T <: Atom](ls: List[T]) {
+      private def makePair(ls: List[T]): Atom = ls match {
         case h :: tl => Pair(h, makePair(tl))
         case Nil => nil
       }
@@ -192,10 +192,11 @@ object Sisp {
     import Helpers._
 
     type A = Atom
-    def expr: Parser[A] = "nil" ^^^ nil | pair | factor
+    def expr: Parser[A] = "nil" ^^^ nil | quote | pair | factor
+    def quote: Parser[A] = "`" ~> pair ^^ { case p => Pair('quote, p) }
     def pair: Parser[A] = "(" ~> rep(factor | expr) <~ ")" ^^ { case ls => ls.toPair }
     def factor: Parser[A] = number | symbol
-    def symbol: Parser[A] = "[\\=\\*\\+\\-\\?\\.a-zA-Z]+[0-9]*".r ^^ { case s => Sym(s) }
+    def symbol: Parser[A] = "[!@#$%^&_=\\*\\-\\+\\?\\.a-zA-Z]+[0-9]*".r ^^ { case s => Sym(s) }
     def number: Parser[A] = wholeNumber ^^ { case a => Integer(a.toInt) }
   }
 

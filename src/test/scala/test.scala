@@ -430,11 +430,13 @@ class SispSpec extends FunSuite {
   }
 
   test("parser") {
+    println(sh(Parser.parse("`(+ 1 2)")))
     assert(Integer(1) == Parser.parse("1"))
     assert(Sym('+) == Parser.parse("+"))
     assert(l('+, 1, 2) == Parser.parse("(+ 1 2)"))
     assert(l('define, 'a, l('-, 1, 2)) == Parser.parse("(define a (- 1 2))"))
     assert(Sym('t) == Parser.parse("t"))
     assert(nil == Parser.parse("nil"))
+    assert(l(Sym('quote), '+, 1, 2) == Parser.parse("`(+ 1 2)"))
   }
 }
