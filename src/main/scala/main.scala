@@ -189,15 +189,15 @@ object Sisp {
   }
 
   class LispParser extends JavaTokenParsers  {
-    import Helpers._
+    import Helpers._ // for implicit conversion
 
     type A = Atom
     def expr: Parser[A] = "nil" ^^^ nil | quote | pair | factor
     def quote: Parser[A] = "`" ~> pair ^^ { case p => Pair('quote, p) }
-    def pair: Parser[A] = "(" ~> rep(factor | expr) <~ ")" ^^ { case ls => ls.toPair }
+    def pair: Parser[A] = "(" ~> rep(factor | expr) <~ ")" ^^ (_.toPair)
     def factor: Parser[A] = number | symbol
     def symbol: Parser[A] = "[!@#$%^&_=\\*\\-\\+\\?\\.a-zA-Z]+[0-9]*".r ^^ { case s => Sym(s) }
-    def number: Parser[A] = wholeNumber ^^ { case a => Integer(a.toInt) }
+    def number: Parser[A] = wholeNumber ^^ (_.toInt)
   }
 
   object Parser extends LispParser {
