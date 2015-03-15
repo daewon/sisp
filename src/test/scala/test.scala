@@ -1,12 +1,11 @@
 /* references
  http://www.furidamu.org/blog/2012/03/23/scalisp-a-lisp-interpreter-in-scala/
+
  basic parser
  http://stackoverflow.com/a/11533809/1513517
  */
 
 import org.scalatest.FunSuite
-import scala.util._
-import scala.util.parsing.combinator._
 
 class SispSpec extends FunSuite {
   import com.daewon.sisp.Sisp._
@@ -68,7 +67,7 @@ class SispSpec extends FunSuite {
     val lambdaCons =
       Cons(Sym('a), l(Sym('lambda), l(Sym('a)), Sym('a)))
 
-    // special case for lambda pair
+    // special case for lambda cons
     assert(show(lambdaCons) == "(a . (lambda (a) a))")
   }
 
@@ -77,13 +76,13 @@ class SispSpec extends FunSuite {
     assert(nilp(nil))
 
     // (1 . 2)
-    assert(pairp(Cons(Integer(1), Integer(2))))
+    assert(consp(Cons(Integer(1), Integer(2))))
 
     // (1 2)
     assert(listp(Cons(Integer(1), Integer(2))) == false)
 
     // ((dun . 1) . 2)
-    assert(pairp(Cons(Cons('dun, Integer(1)), Integer(2))))
+    assert(consp(Cons(Cons('dun, Integer(1)), Integer(2))))
     assert(listp(Cons(Cons('dun, Integer(1)), Integer(2))) == false)
   }
 
@@ -430,6 +429,10 @@ class SispSpec extends FunSuite {
   }
 
   test("parser") {
+    sh(Parser.parse("((1 . 2) . (3 4))"))
+    sh(Cons(1, 2))
+    sh(Cons(1, Cons(2, 3)))
+    sh(Cons(1, Cons(1, nil)))
     assert(Integer(1) == Parser.parse("1"))
     assert(Sym('+) == Parser.parse("+"))
     assert(l('+, 1, 2) == Parser.parse("(+ 1 2)"))

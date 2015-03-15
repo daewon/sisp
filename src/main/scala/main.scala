@@ -19,9 +19,9 @@ object Sisp {
 
   // built-in functions
   def cons(car: Atom, cdr: Atom): Atom = Cons(car, cdr)
-  def car(pair: Atom) = pair match { case Cons(car, _) => car }
-  def cdr(pair: Atom) = pair match { case Cons(_, cdr) => cdr }
-  def cadr(pair: Atom) = car(cdr(pair))
+  def car(cons: Atom) = cons match { case Cons(car, _) => car }
+  def cdr(cons: Atom) = cons match { case Cons(_, cdr) => cdr }
+  def cadr(cons: Atom) = car(cdr(cons))
 
   // predicate functions
   def nilp(expr: Atom) = expr == nil
@@ -32,7 +32,7 @@ object Sisp {
   }
 
   // `(a . b)
-  def pairp(expr: Atom) = expr match {
+  def consp(expr: Atom) = expr match {
     case Cons(car, cdr) if (!listp(cdr)) => true
     case Cons(car, `nil`) => false
     case _ => false
@@ -52,6 +52,7 @@ object Sisp {
     def showCar(expr: Atom): String = expr match {
       case Cons(s@Sym(n), c@Cons(Sym('lambda), _)) => paren(showCar(s) + " . " + showCar(c)) // special case for lambda
       case Cons(Sym('quote), Cons(h, t)) => paren(showCdr(Cons(h, t)).trim)
+      case Cons(hd, p@Cons(h, t)) if consp(p) => paren((showCar(hd) + " . " + showCar(p)).trim)
       case Cons(hd, Cons(h, t)) => paren((showCar(hd) + " " + showCdr(Cons(h, t))).trim)
       case Cons(hd, `nil`) => paren(showCar(hd))
       case Cons(hd, tl) => paren(showCar(hd) + " . " + showCdr(tl))
@@ -68,7 +69,7 @@ object Sisp {
   def sh(value: Atom) = println(show(value))
 
   // env
-  // (nil (foo . 1) (bar . 20)), pair of  list: car is parent
+  // (nil (foo . 1) (bar . 20)), cons of  list: car is parent
   object Environment {
     def createEnv(parent: Atom = nil): Atom = Cons(parent, nil)
     def set(env: Atom, key: Sym, value: Atom): Cons = {
@@ -190,11 +191,12 @@ object Sisp {
     import Helpers._ // for implicit conversion
 
     type A = Atom
-    def expr: Parser[A] = "nil" ^^^ nil | quote | pair | factor
-    def quote: Parser[A] = "`" ~> pair ^^ { case p => Cons('quote, p) }
-    def pair: Parser[A] = "(" ~> rep(factor | expr) <~ ")" ^^ (_.toCons)
+    def expr: Parser[A] = "nil" ^^^ nil | quote | cons | impCons | factor
+    def quote: Parser[A] = "`" ~> cons ^^ { case p => Cons('quote, p) }
+    def cons: Parser[A] = "(" ~> rep(factor | expr) <~ ")" ^^ (_.toCons)
+    def impCons: Parser[A] = ("(" ~> expr) ~ "." ~ (expr <~ ")") ^^ { case a ~ _ ~ c => Cons(a, c) }
     def factor: Parser[A] = number | symbol
-    def symbol: Parser[A] = "[!@#$%^&_=\\*\\-\\+\\?\\.a-zA-Z]+[0-9]*".r ^^ { case s => Sym(s) }
+    def symbol: Parser[A] = "[!@#$%^&_=\\*\\-\\+\\?a-zA-Z]+[0-9]*".r ^^ { case s => Sym(s) }
     def number: Parser[A] = wholeNumber ^^ (_.toInt)
   }
 
