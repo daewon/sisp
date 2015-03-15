@@ -10,31 +10,31 @@ object Sisp {
   // basic data types
   trait Atom
   case object nil extends Atom
-  case class Pair(car: Atom, cdr: Atom) extends Atom
+  case class Cons(car: Atom, cdr: Atom) extends Atom
   case class Integer(value: Int) extends Atom
   case class Sym(value: Symbol) extends Atom
-  object Sym { def apply(str: String) = new Sym(Symbol(str))  }
+  case object Sym { def apply(str: String) = new Sym(Symbol(str)) }
   case class BuiltIn(val call: Atom => Atom) extends Atom
   case class Closure(var env: Atom, args: Atom, body: Atom) extends Atom
 
   // built-in functions
-  def cons(car: Atom, cdr: Atom): Atom = Pair(car, cdr)
-  def car(pair: Atom) = pair match { case Pair(car, _) => car }
-  def cdr(pair: Atom) = pair match { case Pair(_, cdr) => cdr }
+  def cons(car: Atom, cdr: Atom): Atom = Cons(car, cdr)
+  def car(pair: Atom) = pair match { case Cons(car, _) => car }
+  def cdr(pair: Atom) = pair match { case Cons(_, cdr) => cdr }
   def cadr(pair: Atom) = car(cdr(pair))
 
   // predicate functions
   def nilp(expr: Atom) = expr == nil
   @tailrec def listp(expr: Atom): Boolean = expr match {
-    case Pair(_, cdr) => listp(cdr)
+    case Cons(_, cdr) => listp(cdr)
     case `nil` => true
     case _ => false
   }
 
   // `(a . b)
   def pairp(expr: Atom) = expr match {
-    case Pair(car, cdr) if (!listp(cdr)) => true
-    case Pair(car, `nil`) => false
+    case Cons(car, cdr) if (!listp(cdr)) => true
+    case Cons(car, `nil`) => false
     case _ => false
   }
 
@@ -42,23 +42,23 @@ object Sisp {
   def show(expr: Atom): String = {
     def paren(s: String) = "(" + s + ")"
     def showCdr(expr: Atom): String = expr match {
-      case Pair(a@Pair(_, _), b@Pair(_, _)) => showCar(a) + " " + showCdr(b)
-      case Pair(a@Pair(_, _), tail) => showCar(a) + " " + showCar(tail)
-      case Pair(hd, tl) => showCdr(hd) + " " + showCdr(tl)
+      case Cons(a@Cons(_, _), b@Cons(_, _)) => showCar(a) + " " + showCdr(b)
+      case Cons(a@Cons(_, _), tail) => showCar(a) + " " + showCar(tail)
+      case Cons(hd, tl) => showCdr(hd) + " " + showCdr(tl)
       case _ => showCar(expr)
     }
 
     // ((a . 10) (b . 20) (c . 30) (d . 40))
     def showCar(expr: Atom): String = expr match {
-      case Pair(s@Sym(n), c@Pair(Sym('lambda), _)) => paren(showCar(s) + " . " + showCar(c)) // special case for lambda
-      case Pair(Sym('quote), Pair(h, t)) => paren(showCdr(Pair(h, t)).trim)
-      case Pair(hd, Pair(h, t)) => paren((showCar(hd) + " " + showCdr(Pair(h, t))).trim)
-      case Pair(hd, `nil`) => paren(showCar(hd))
-      case Pair(hd, tl) => paren(showCar(hd) + " . " + showCdr(tl))
+      case Cons(s@Sym(n), c@Cons(Sym('lambda), _)) => paren(showCar(s) + " . " + showCar(c)) // special case for lambda
+      case Cons(Sym('quote), Cons(h, t)) => paren(showCdr(Cons(h, t)).trim)
+      case Cons(hd, Cons(h, t)) => paren((showCar(hd) + " " + showCdr(Cons(h, t))).trim)
+      case Cons(hd, `nil`) => paren(showCar(hd))
+      case Cons(hd, tl) => paren(showCar(hd) + " . " + showCdr(tl))
       case Integer(n) => n.toString
       case Sym(s) => s.toString.drop(1)
       case BuiltIn(fn) => showCar(Sym(Symbol("built-in"))) + " " + fn.toString
-      case Closure(_, args, body) => showCar(Pair(Sym('lambda), Pair(args, Pair(body, nil))))
+      case Closure(_, args, body) => showCar(Cons(Sym('lambda), Cons(args, Cons(body, nil))))
       case `nil` => ""
     }
 
@@ -70,16 +70,16 @@ object Sisp {
   // env
   // (nil (foo . 1) (bar . 20)), pair of  list: car is parent
   object Environment {
-    def createEnv(parent: Atom = nil): Atom = Pair(parent, nil)
-    def set(env: Atom, key: Sym, value: Atom): Pair = {
+    def createEnv(parent: Atom = nil): Atom = Cons(parent, nil)
+    def set(env: Atom, key: Sym, value: Atom): Cons = {
       val (parent, current) = (car(env), cdr(env))
-      Pair(parent, Pair(Pair(key, value), unset(env, key)))
+      Cons(parent, Cons(Cons(key, value), unset(env, key)))
     }
 
     def unset(env: Atom, target: Sym): Atom = {
       def _unset(env: Atom): Atom = env match {
-        case Pair(Pair(s@Sym(_), _), tl) if s == target => _unset(tl)
-        case Pair(hd, tl) => Pair(hd, _unset(tl))
+        case Cons(Cons(s@Sym(_), _), tl) if s == target => _unset(tl)
+        case Cons(hd, tl) => Cons(hd, _unset(tl))
         case `nil` => nil
       }
       val (_, current) = (car(env), cdr(env))
@@ -88,8 +88,8 @@ object Sisp {
 
     def get(env: Atom, symbol: Sym): Atom = {
       @tailrec def find(lst: Atom): Atom = lst match {
-        case Pair(Pair(s@Sym(_), v), tl) if s == symbol => v
-        case Pair(_, tl) => find(tl)
+        case Cons(Cons(s@Sym(_), v), tl) if s == symbol => v
+        case Cons(_, tl) => find(tl)
         case `nil` => nil
       }
 
@@ -106,29 +106,29 @@ object Sisp {
   import Environment._
   // set env with ((a b) (10 20)) => ((a . 10) (b . 20))
   def bindEnv(env: Atom, names: Atom, values: Atom): Atom = names match {
-    case Pair(s@Sym(_), tail) => bindEnv(set(env, s, car(values)), tail, cdr(values))
+    case Cons(s@Sym(_), tail) => bindEnv(set(env, s, car(values)), tail, cdr(values))
     case `nil` => env
   }
 
   // env((a . 10) (b . 20)), symbols(a b) => (10 20)
   def mapArgs(env: Atom, args: Atom): Atom = args match {
-    case Pair(hd, tl) =>
+    case Cons(hd, tl) =>
       val res =  eval(env, hd)
       val newEnv = car(res)
       val value = cdr(res)
-      Pair(value, mapArgs(newEnv, tl))
+      Cons(value, mapArgs(newEnv, tl))
     case `nil` => nil
   }
 
-  def eval(env: Atom, expr: Atom): Pair = expr match {
-    case s@Sym('t) => Pair(env, s)
-    case s@Sym('nil) => Pair(env, nil)
-    case s@Sym(name) => Pair(env, get(env, s))
-    case i@Integer(n) => Pair(env, i)
-    case c@Closure(env, names, body) => Pair(env, c)
-    case b@BuiltIn(fn) => Pair(env, b)
-    case Pair(Sym('quote), v@_) => Pair(env, v)
-    case Pair(Sym('define), Pair(k@Sym(_), Pair(v, nil))) =>
+  def eval(env: Atom, expr: Atom): Cons = expr match {
+    case s@Sym('t) => Cons(env, s)
+    case s@Sym('nil) => Cons(env, nil)
+    case s@Sym(name) => Cons(env, get(env, s))
+    case i@Integer(n) => Cons(env, i)
+    case c@Closure(env, names, body) => Cons(env, c)
+    case b@BuiltIn(fn) => Cons(env, b)
+    case Cons(Sym('quote), v@_) => Cons(env, v)
+    case Cons(Sym('define), Cons(k@Sym(_), Cons(v, nil))) =>
       val ret = eval(env, v)
       val newEnv = car(ret)
       val value = cdr(ret)
@@ -136,15 +136,15 @@ object Sisp {
         case c@Closure(_, _, _) =>
           val resEnv = set(newEnv, k, c)
           c.env = createEnv(resEnv) // re-assign env to closure
-          Pair(resEnv, k)
-        case _ => Pair(set(newEnv, k, value), k)
+          Cons(resEnv, k)
+        case _ => Cons(set(newEnv, k, value), k)
       }
 
-    case Pair(Sym('lambda), tl) =>
+    case Cons(Sym('lambda), tl) =>
       val names = car(tl)
       val body = cadr(tl)
-      Pair(env, Closure(createEnv(env), names, body))
-    case Pair(Sym('if), Pair(cond, Pair(a, b))) =>
+      Cons(env, Closure(createEnv(env), names, body))
+    case Cons(Sym('if), Cons(cond, Cons(a, b))) =>
       val ret = eval(env, cond)
       val newEnv = car(ret)
       val value = cdr(ret)
@@ -164,25 +164,25 @@ object Sisp {
           cdr(eval(bindEnv(ev, names, mapArgs(env, args)), body))
       }
 
-      Pair(env, ret)
+      Cons(env, ret)
   }
 
   // helper for test
   object Helpers {
     implicit def toInteger(n: Int): Integer = Integer(n)
-    implicit def toSymbol(s: Symbol): Sym = Sym(s)
-    implicit def toPair[T <% Atom](a: Tuple2[T, T]): Pair = Pair(a._1, a._2)
+    implicit def toSym(s: Symbol): Sym = Sym(s)
+    implicit def toCons[T <% Atom](a: Tuple2[T, T]): Cons = Cons(a._1, a._2)
 
     def l(args: Atom*): Atom = // helper function for test
       if (args.isEmpty || args.head == nil) nil
-      else Pair(args.head, l(args.tail:_*))
+      else Cons(args.head, l(args.tail:_*))
 
-    implicit class ListToPair[T <: Atom](ls: List[T]) {
-      private def makePair(ls: List[T]): Atom = ls match {
-        case h :: tl => Pair(h, makePair(tl))
+    implicit class ListToCons[T <: Atom](ls: List[T]) {
+      private def makeCons(ls: List[T]): Atom = ls match {
+        case h :: tl => Cons(h, makeCons(tl))
         case Nil => nil
       }
-      def toPair = makePair(ls)
+      def toCons = makeCons(ls)
     }
   }
 
@@ -191,8 +191,8 @@ object Sisp {
 
     type A = Atom
     def expr: Parser[A] = "nil" ^^^ nil | quote | pair | factor
-    def quote: Parser[A] = "`" ~> pair ^^ { case p => Pair('quote, p) }
-    def pair: Parser[A] = "(" ~> rep(factor | expr) <~ ")" ^^ (_.toPair)
+    def quote: Parser[A] = "`" ~> pair ^^ { case p => Cons('quote, p) }
+    def pair: Parser[A] = "(" ~> rep(factor | expr) <~ ")" ^^ (_.toCons)
     def factor: Parser[A] = number | symbol
     def symbol: Parser[A] = "[!@#$%^&_=\\*\\-\\+\\?\\.a-zA-Z]+[0-9]*".r ^^ { case s => Sym(s) }
     def number: Parser[A] = wholeNumber ^^ (_.toInt)

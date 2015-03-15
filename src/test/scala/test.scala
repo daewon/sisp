@@ -21,7 +21,7 @@ class SispSpec extends FunSuite {
 
     val sum = BuiltIn { _args: Atom =>
       def sum(args: Atom): Int = args match {
-        case Pair(Integer(n), tl) => n + sum(tl)
+        case Cons(Integer(n), tl) => n + sum(tl)
         case `nil` => 0
       }
       Integer(sum(_args))
@@ -29,47 +29,47 @@ class SispSpec extends FunSuite {
   }
 
   test("list") {
-    assert(l('a, 'b) == Pair(Sym('a), Pair(Sym('b), nil)))
-    assert(l('a, 'b, 'c) == Pair(Sym('a), Pair(Sym('b), Pair(Sym('c), nil))))
+    assert(l('a, 'b) == Cons(Sym('a), Cons(Sym('b), nil)))
+    assert(l('a, 'b, 'c) == Cons(Sym('a), Cons(Sym('b), Cons(Sym('c), nil))))
   }
 
   test("show") {
-    assert(show(Pair(Integer(1), nil)) == "(1)")
-    assert(show(Pair(Integer(1), Pair(Integer(2), Pair(Integer(3), nil)))) == "(1 2 3)")
-    assert(show(Pair(Integer(1), Pair(Integer(2), Pair(Integer(3), Pair(Integer(4), nil))))) == "(1 2 3 4)")
+    assert(show(Cons(Integer(1), nil)) == "(1)")
+    assert(show(Cons(Integer(1), Cons(Integer(2), Cons(Integer(3), nil)))) == "(1 2 3)")
+    assert(show(Cons(Integer(1), Cons(Integer(2), Cons(Integer(3), Cons(Integer(4), nil))))) == "(1 2 3 4)")
 
-    assert(show(Pair(Pair(Integer(1), nil), nil)) == "((1))")
-    assert(show(Pair(Pair(Integer(1), nil), Pair(Integer(2), nil))) == "((1) 2)")
+    assert(show(Cons(Cons(Integer(1), nil), nil)) == "((1))")
+    assert(show(Cons(Cons(Integer(1), nil), Cons(Integer(2), nil))) == "((1) 2)")
 
-    val lst123 = Pair(Integer(1), Pair(Integer(2), Pair(Integer(3), nil)))
-    assert(show(Pair(Sym('foo), lst123)) == "(foo 1 2 3)")
-    assert(show(Pair(Sym('foo), Pair(lst123, nil))) == "(foo (1 2 3))")
+    val lst123 = Cons(Integer(1), Cons(Integer(2), Cons(Integer(3), nil)))
+    assert(show(Cons(Sym('foo), lst123)) == "(foo 1 2 3)")
+    assert(show(Cons(Sym('foo), Cons(lst123, nil))) == "(foo (1 2 3))")
 
-    assert(show(Pair(Integer(1), Integer(2))) == "(1 . 2)")
-    assert(show(Pair(Integer(1), Pair(Integer(2), nil))) == "(1 2)")
+    assert(show(Cons(Integer(1), Integer(2))) == "(1 . 2)")
+    assert(show(Cons(Integer(1), Cons(Integer(2), nil))) == "(1 2)")
 
-    assert(show(Pair(Sym('dun), Pair(Integer(1), nil))) == "(dun 1)")
-    assert(show(Pair(Pair(Sym('dun), Integer(1)), Integer(2))) == "((dun . 1) . 2)")
+    assert(show(Cons(Sym('dun), Cons(Integer(1), nil))) == "(dun 1)")
+    assert(show(Cons(Cons(Sym('dun), Integer(1)), Integer(2))) == "((dun . 1) . 2)")
 
-    val a = Pair(Sym('a), Integer(10))
-    val b = Pair(Sym('b), Integer(20))
-    val c = Pair(Sym('c), Integer(30))
-    val d = Pair(Sym('d), Integer(40))
+    val a = Cons(Sym('a), Integer(10))
+    val b = Cons(Sym('b), Integer(20))
+    val c = Cons(Sym('c), Integer(30))
+    val d = Cons(Sym('d), Integer(40))
 
-    assert(show(Pair(a, Pair(b, Pair(c, Pair(d, nil))))) == "((a . 10) (b . 20) (c . 30) (d . 40))")
+    assert(show(Cons(a, Cons(b, Cons(c, Cons(d, nil))))) == "((a . 10) (b . 20) (c . 30) (d . 40))")
     val lambda = Closure(nil,
-      Pair(Sym('a), Pair(Sym('b), nil)),
-      Pair(Sym('+), Pair(Sym('a), Pair(Sym('b), nil)))
+      Cons(Sym('a), Cons(Sym('b), nil)),
+      Cons(Sym('+), Cons(Sym('a), Cons(Sym('b), nil)))
     )
 
     assert(show(lambda) == "(lambda (a b) (+ a b))")
     assert(show(BuiltIn{_ => nil}) == "built-in <function1>")
 
-    val lambdaPair =
-      Pair(Sym('a), l(Sym('lambda), l(Sym('a)), Sym('a)))
+    val lambdaCons =
+      Cons(Sym('a), l(Sym('lambda), l(Sym('a)), Sym('a)))
 
     // special case for lambda pair
-    assert(show(lambdaPair) == "(a . (lambda (a) a))")
+    assert(show(lambdaCons) == "(a . (lambda (a) a))")
   }
 
   test("predicate") {
@@ -77,14 +77,14 @@ class SispSpec extends FunSuite {
     assert(nilp(nil))
 
     // (1 . 2)
-    assert(pairp(Pair(Integer(1), Integer(2))))
+    assert(pairp(Cons(Integer(1), Integer(2))))
 
     // (1 2)
-    assert(listp(Pair(Integer(1), Integer(2))) == false)
+    assert(listp(Cons(Integer(1), Integer(2))) == false)
 
     // ((dun . 1) . 2)
-    assert(pairp(Pair(Pair('dun, Integer(1)), Integer(2))))
-    assert(listp(Pair(Pair('dun, Integer(1)), Integer(2))) == false)
+    assert(pairp(Cons(Cons('dun, Integer(1)), Integer(2))))
+    assert(listp(Cons(Cons('dun, Integer(1)), Integer(2))) == false)
   }
 
   test("env") {
@@ -102,7 +102,7 @@ class SispSpec extends FunSuite {
     assert(get(env, 'c) == Integer(100)) // from parent env
 
     // unset values just current env, without parent env
-    assert(Pair(Pair('c, Integer(100)), nil) == unset(env, 'a))
+    assert(Cons(Cons('c, Integer(100)), nil) == unset(env, 'a))
   }
 
   test("closure") {
@@ -112,7 +112,7 @@ class SispSpec extends FunSuite {
 
     val add = BuiltIn { _args: Atom =>
       def sum(args: Atom): Int = args match {
-        case Pair(Integer(n), tl) => n + sum(tl)
+        case Cons(Integer(n), tl) => n + sum(tl)
         case `nil` => 0
       }
       Integer(sum(_args))
@@ -201,13 +201,13 @@ class SispSpec extends FunSuite {
 
     // built-in add
     val binaryAdd = BuiltIn { _ match {
-      case Pair(Integer(a), Pair(Integer(b), `nil`)) => Integer(a + b)
+      case Cons(Integer(a), Cons(Integer(b), `nil`)) => Integer(a + b)
     }}
     val binarySub = BuiltIn { _ match {
-      case Pair(Integer(a), Pair(Integer(b), `nil`)) => Integer(a - b)
+      case Cons(Integer(a), Cons(Integer(b), `nil`)) => Integer(a - b)
     }}
     val binaryMul = BuiltIn { _ match {
-      case Pair(Integer(a), Pair(Integer(b), `nil`)) => Integer(a * b)
+      case Cons(Integer(a), Cons(Integer(b), `nil`)) => Integer(a * b)
     }}
 
     env = set(env, '+, binaryAdd)
@@ -299,12 +299,12 @@ class SispSpec extends FunSuite {
 
     // make build-in car function
     val builtInCar = BuiltIn { _ match {
-      case Pair(hd, _) => hd
+      case Cons(hd, _) => hd
       case `nil` => nil
     }}
 
     val builtInCdr = BuiltIn { _ match {
-      case Pair(_, tl) => tl
+      case Cons(_, tl) => tl
       case `nil` => nil
     }}
 
@@ -430,7 +430,6 @@ class SispSpec extends FunSuite {
   }
 
   test("parser") {
-    sh(Parser.parse("`(+ 1 `(- 1 2))"))
     assert(Integer(1) == Parser.parse("1"))
     assert(Sym('+) == Parser.parse("+"))
     assert(l('+, 1, 2) == Parser.parse("(+ 1 2)"))
