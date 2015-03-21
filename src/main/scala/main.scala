@@ -40,7 +40,7 @@ object Sisp {
 
   // show
   def show(expr: Atom): String = {
-    def paren(s: String) = "(" + s + ")"
+    def paren(s: String) = s"($s)"
 
     def showCdr(expr: Atom): String = expr match {
       case a@Cons(hd, tl) if consp(a) && !consp(tl) => showCar(hd) + " . "  + showCar(tl)
@@ -50,7 +50,6 @@ object Sisp {
 
     // ((a . 10) (b . 20) (c . 30) (d . 40))
     def showCar(expr: Atom): String = expr match {
-      case Cons(s@Sym(n), c@Cons(Sym('lambda), _)) => paren( showCar(s) + " . " + showCar(c) ) // special case for lambda
       case Cons(Sym('quote), a@Cons(h, t)) => paren( showCdr(a).trim )
       case a@Cons(hd, tl) if consp(a) && !consp(tl) => paren( showCar(hd) + " . "  + showCar(tl))
       case Cons(hd, `nil`) => paren( showCar(hd) )

@@ -51,8 +51,7 @@ class ShowTest extends FunSuite {
     val lambdaCons =
       Cons(Sym('a), l(Sym('lambda), l(Sym('a)), Sym('a)))
 
-    // special case for lambda cons
-    assert(show(lambdaCons) == "(a . (lambda (a) a))")
+    assert(show(lambdaCons) == "(a lambda (a) a)")
   }
 }
 
