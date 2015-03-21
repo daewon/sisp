@@ -10,6 +10,31 @@ import com.daewon.sisp.Sisp._
 import Environment._
 import Helpers._
 
+class ParserTest extends FunSuite {
+  test("parser") {
+    assert(l(1, 2) == Parser.parse("(1 2)"))
+    assert(Cons(1, 2) == Parser.parse("(1 . 2)"))
+
+    assert(Cons(1, Cons(2, 3))  == Parser.parse("(1 2 . 3)"))
+
+    assert(Cons(Cons(1, 2), 3) == Parser.parse("((1 . 2) . 3)"))
+    assert(Cons(Cons(1, 2), Cons(3, nil)) == Parser.parse("((1 . 2) . (3))"))
+
+    assert(Cons(Cons(1, 2), Cons(3, 4)) == Parser.parse("((1 . 2) 3 . 4)"))
+
+    assert(Cons(Cons(Integer(1), Integer(2)), Cons(Integer(3), Cons(Integer(4), nil))) == Parser.parse("((1 . 2) 3 4)"))
+    assert(Cons(Cons(Cons(Integer(1),Integer(2)),Integer(3)),Integer(4)) == Parser.parse("(((1 . 2) . 3) . 4)"))
+
+    assert(Integer(1) == Parser.parse("1"))
+    assert(Sym('+) == Parser.parse("+"))
+    assert(l('+, 1, 2) == Parser.parse("(+ 1 2)"))
+    assert(l('define, 'a, l('-, 1, 2)) == Parser.parse("(define a (- 1 2))"))
+    assert(Sym('t) == Parser.parse("t"))
+    assert(nil == Parser.parse("nil"))
+    assert(l(Sym('quote), '+, 1, 2) == Parser.parse("`(+ 1 2)"))
+  }
+}
+
 class ShowTest extends FunSuite {
   test("show") {
     assert(show(Cons(Integer(1), nil)) == "(1)")
@@ -20,6 +45,8 @@ class ShowTest extends FunSuite {
     assert(show(Cons(Integer(1), Cons(Integer(2), Integer(3))))  == "(1 2 . 3)")
 
     assert(show(Cons(Integer(1), Cons(Integer(2), Cons(Integer(3), Cons(Integer(4), nil))))) == "(1 2 3 4)")
+    assert(show(Cons(Cons(1, 2), Cons(3, 4))) == "((1 . 2) 3 . 4)")
+    assert(show(Cons(Cons(1, 2), Cons(3, Cons(4, 5)))) == "((1 . 2) 3 4 . 5)")
 
     assert(show(Cons(Cons(Integer(1), nil), nil)) == "((1))")
     assert(show(Cons(Cons(Integer(1), nil), Cons(Integer(2), nil))) == "((1) 2)")
@@ -431,19 +458,5 @@ class SispTest extends FunSuite {
     value = cdr(ret)
     assert(value == Integer(120))
 
-  }
-
-  test("parser") {
-    sh(Parser.parse("((1 . 2) (3 . 4))"))
-    sh(Cons(1, 2))
-    sh(Cons(1, Cons(2, 3)))
-    sh(Cons(1, Cons(1, nil)))
-    assert(Integer(1) == Parser.parse("1"))
-    assert(Sym('+) == Parser.parse("+"))
-    assert(l('+, 1, 2) == Parser.parse("(+ 1 2)"))
-    assert(l('define, 'a, l('-, 1, 2)) == Parser.parse("(define a (- 1 2))"))
-    assert(Sym('t) == Parser.parse("t"))
-    assert(nil == Parser.parse("nil"))
-    assert(l(Sym('quote), '+, 1, 2) == Parser.parse("`(+ 1 2)"))
   }
 }

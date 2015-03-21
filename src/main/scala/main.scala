@@ -1,5 +1,9 @@
 // reference: http://www.lwh.jp/lisp/
 
+// improper list
+// http://icem-www.folkwang-hochschule.de/~finnendahl/cm_kurse/doc/schintro/schintro_93.html
+// http://www.gnu.org/software/mit-scheme/documentation/mit-scheme-ref/Lists.html
+
 package com.daewon.sisp
 
 import scala.annotation._
@@ -181,18 +185,27 @@ object Sisp {
         case h :: tl => Cons(h, makeCons(tl))
         case Nil => nil
       }
+      private def makeImproperCons(ls: List[T], last: T): Atom = ls match {
+        case h :: tl => Cons(h, makeImproperCons(tl, last))
+        case Nil => last
+      }
+
       def toCons = makeCons(ls)
+      def toImproperCons(last: T) = makeImproperCons(ls, last)
     }
   }
 
   class LispParser extends JavaTokenParsers  {
     import Helpers._ // for implicit conversion
 
+    // "((1 . 2) 3 . 4)"
     type A = Atom
     def expr: Parser[A] = "nil" ^^^ nil | quote | cons | impCons | factor
     def quote: Parser[A] = "`" ~> cons ^^ { case p => Cons('quote, p) }
     def cons: Parser[A] = "(" ~> rep(factor | expr) <~ ")" ^^ (_.toCons)
-    def impCons: Parser[A] = ("(" ~> expr) ~ "." ~ (expr <~ ")") ^^ { case a ~ _ ~ c => Cons(a, c) }
+    def impCons: Parser[A] = ("(" ~> rep(expr)) ~ "." ~ (expr <~ ")") ^^ {
+      case a ~ _ ~ c => a.toImproperCons(c)
+    }
     def factor: Parser[A] = number | symbol
     def symbol: Parser[A] = "[!@#$%^&_=\\*\\-\\+\\?a-zA-Z]+[0-9]*".r ^^ { case s => Sym(s) }
     def number: Parser[A] = wholeNumber ^^ (_.toInt)
