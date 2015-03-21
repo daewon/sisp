@@ -12,16 +12,16 @@ import Helpers._
 
 class ParserTest extends FunSuite {
   test("parser") {
+    assert(l() == Parser.parse("()"))
+    assert(nil == Parser.parse("nil"))
+    assert(Parser.parse("nil") == Parser.parse("()"))
+
     assert(l(1, 2) == Parser.parse("(1 2)"))
     assert(Cons(1, 2) == Parser.parse("(1 . 2)"))
-
     assert(Cons(1, Cons(2, 3))  == Parser.parse("(1 2 . 3)"))
-
     assert(Cons(Cons(1, 2), 3) == Parser.parse("((1 . 2) . 3)"))
     assert(Cons(Cons(1, 2), Cons(3, nil)) == Parser.parse("((1 . 2) . (3))"))
-
     assert(Cons(Cons(1, 2), Cons(3, 4)) == Parser.parse("((1 . 2) 3 . 4)"))
-
     assert(Cons(Cons(Integer(1), Integer(2)), Cons(Integer(3), Cons(Integer(4), nil))) == Parser.parse("((1 . 2) 3 4)"))
     assert(Cons(Cons(Cons(Integer(1),Integer(2)),Integer(3)),Integer(4)) == Parser.parse("(((1 . 2) . 3) . 4)"))
 
