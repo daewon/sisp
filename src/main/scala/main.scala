@@ -41,21 +41,20 @@ object Sisp {
   // show
   def show(expr: Atom): String = {
     def paren(s: String) = "(" + s + ")"
+
     def showCdr(expr: Atom): String = expr match {
-      case Cons(a@Cons(_, _), b@Cons(_, _)) => showCar(a) + " " + showCdr(b)
-      case Cons(a@Cons(_, _), tail) => showCar(a) + " " + showCar(tail)
-      case Cons(hd, tl) => showCdr(hd) + " " + showCdr(tl)
+      case a@Cons(hd, tl) if consp(a) && !consp(tl) => showCar(hd) + " . "  + showCar(tl)
+      case Cons(hd, tl) => showCar(hd) + " " + showCdr(tl)
       case _ => showCar(expr)
     }
 
     // ((a . 10) (b . 20) (c . 30) (d . 40))
     def showCar(expr: Atom): String = expr match {
-      case Cons(s@Sym(n), c@Cons(Sym('lambda), _)) => paren(showCar(s) + " . " + showCar(c)) // special case for lambda
-      case Cons(Sym('quote), Cons(h, t)) => paren(showCdr(Cons(h, t)).trim)
-      case Cons(hd, p@Cons(h, t)) if consp(p) => paren((showCar(hd) + " . " + showCar(p)).trim)
-      case Cons(hd, Cons(h, t)) => paren((showCar(hd) + " " + showCdr(Cons(h, t))).trim)
-      case Cons(hd, `nil`) => paren(showCar(hd))
-      case Cons(hd, tl) => paren(showCar(hd) + " . " + showCdr(tl))
+      case Cons(s@Sym(n), c@Cons(Sym('lambda), _)) => paren( showCar(s) + " . " + showCar(c) ) // special case for lambda
+      case Cons(Sym('quote), a@Cons(h, t)) => paren( showCdr(a).trim )
+      case a@Cons(hd, tl) if consp(a) && !consp(tl) => paren( showCar(hd) + " . "  + showCar(tl))
+      case Cons(hd, `nil`) => paren( showCar(hd) )
+      case Cons(hd, tl) => paren( (showCar(hd) + " " + showCdr(tl)).trim )
       case Integer(n) => n.toString
       case Sym(s) => s.toString.drop(1)
       case BuiltIn(fn) => showCar(Sym(Symbol("built-in"))) + " " + fn.toString

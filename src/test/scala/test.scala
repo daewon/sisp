@@ -4,37 +4,21 @@
  basic parser
  http://stackoverflow.com/a/11533809/1513517
  */
-
 import org.scalatest.FunSuite
+import com.daewon.sisp.Sisp._
 
-class SispSpec extends FunSuite {
-  import com.daewon.sisp.Sisp._
+import Environment._
+import Helpers._
 
-  import Environment._
-  import Helpers._
-
-  test("create symbol") {
-    assert(Integer(1).value == 1)
-    assert(Sym('dun).value == 'dun)
-    assert(nil == nil)
-
-    val sum = BuiltIn { _args: Atom =>
-      def sum(args: Atom): Int = args match {
-        case Cons(Integer(n), tl) => n + sum(tl)
-        case `nil` => 0
-      }
-      Integer(sum(_args))
-    }
-  }
-
-  test("list") {
-    assert(l('a, 'b) == Cons(Sym('a), Cons(Sym('b), nil)))
-    assert(l('a, 'b, 'c) == Cons(Sym('a), Cons(Sym('b), Cons(Sym('c), nil))))
-  }
-
+class ShowTest extends FunSuite {
   test("show") {
     assert(show(Cons(Integer(1), nil)) == "(1)")
-    assert(show(Cons(Integer(1), Cons(Integer(2), Cons(Integer(3), nil)))) == "(1 2 3)")
+    assert(show(Cons(Integer(1), Cons(Integer(2), nil))) == "(1 2)")
+    assert(show(Cons(Integer(1), Cons(Integer(2), Cons(Integer(3), nil))))  == "(1 2 3)")
+
+    assert(show(Cons(Integer(1), Integer(2)))  == "(1 . 2)")
+    assert(show(Cons(Integer(1), Cons(Integer(2), Integer(3))))  == "(1 2 . 3)")
+
     assert(show(Cons(Integer(1), Cons(Integer(2), Cons(Integer(3), Cons(Integer(4), nil))))) == "(1 2 3 4)")
 
     assert(show(Cons(Cons(Integer(1), nil), nil)) == "((1))")
@@ -70,6 +54,28 @@ class SispSpec extends FunSuite {
     // special case for lambda cons
     assert(show(lambdaCons) == "(a . (lambda (a) a))")
   }
+}
+
+class SispTest extends FunSuite {
+  test("create symbol") {
+    assert(Integer(1).value == 1)
+    assert(Sym('dun).value == 'dun)
+    assert(nil == nil)
+
+    val sum = BuiltIn { _args: Atom =>
+      def sum(args: Atom): Int = args match {
+        case Cons(Integer(n), tl) => n + sum(tl)
+        case `nil` => 0
+      }
+      Integer(sum(_args))
+    }
+  }
+
+  test("list") {
+    assert(l('a, 'b) == Cons(Sym('a), Cons(Sym('b), nil)))
+    assert(l('a, 'b, 'c) == Cons(Sym('a), Cons(Sym('b), Cons(Sym('c), nil))))
+  }
+
 
   test("predicate") {
     // nil
@@ -429,7 +435,7 @@ class SispSpec extends FunSuite {
   }
 
   test("parser") {
-    sh(Parser.parse("((1 . 2) . (3 4))"))
+    sh(Parser.parse("((1 . 2) (3 . 4))"))
     sh(Cons(1, 2))
     sh(Cons(1, Cons(2, 3)))
     sh(Cons(1, Cons(1, nil)))

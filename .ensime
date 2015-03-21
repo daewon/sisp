@@ -1,6 +1,7 @@
 (
  :root-dir "/Users/blueiur/code/sisp"
  :cache-dir "/Users/blueiur/code/sisp/.ensime_cache"
+ :java-home "/Library/Java/JavaVirtualMachines/jdk1.8.0_05.jdk/Contents/Home"
  :name "sisp"
  
  :java-flags ("-Xms1024m" "-Xmx1024m" "-XX:ReservedCodeCacheSize=128m" "-XX:MaxMetaspaceSize=256m")
