@@ -82,7 +82,14 @@ class ShowTest extends FunSuite {
   }
 }
 
-class SispTest extends FunSuite {
+class HelperTest extends FunSuite {
+  test("list") {
+    assert(l('a, 'b) == Cons(Sym('a), Cons(Sym('b), nil)))
+    assert(l('a, 'b, 'c) == Cons(Sym('a), Cons(Sym('b), Cons(Sym('c), nil))))
+  }
+}
+
+class BasicTest extends FunSuite {
   test("create symbol") {
     assert(Integer(1).value == 1)
     assert(Sym('dun).value == 'dun)
@@ -96,12 +103,6 @@ class SispTest extends FunSuite {
       Integer(sum(_args))
     }
   }
-
-  test("list") {
-    assert(l('a, 'b) == Cons(Sym('a), Cons(Sym('b), nil)))
-    assert(l('a, 'b, 'c) == Cons(Sym('a), Cons(Sym('b), Cons(Sym('c), nil))))
-  }
-
 
   test("predicate") {
     // nil
@@ -165,7 +166,9 @@ class SispTest extends FunSuite {
 
     assert(value == Integer(3))
   }
+}
 
+class EvalTest extends FunSuite {
   test("eval") {
     var env = createEnv()
     var value: Atom = nil
@@ -457,6 +460,5 @@ class SispTest extends FunSuite {
     env = car(ret)
     value = cdr(ret)
     assert(value == Integer(120))
-
   }
 }
