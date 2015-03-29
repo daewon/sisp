@@ -55,13 +55,13 @@ class VarArgsTest extends FunSuite {
 
     assert(value == l(1, 2, 3, 4, 5))
 
-    // expr = "((lambda args args))"
-    // parsed = Parser.parse(expr)
-    // ret = eval(env, parsed)
-    // env = car(ret)
-    // value = cdr(ret)
+    expr = "((lambda args args))"
+    parsed = Parser.parse(expr)
+    ret = eval(env, parsed)
+    env = car(ret)
+    value = cdr(ret)
 
-    // assert(value == l())
+    assert(value == l())
   }
 }
 
