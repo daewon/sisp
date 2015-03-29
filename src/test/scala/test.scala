@@ -87,6 +87,7 @@ class ParserTest extends FunSuite {
     assert(Sym('t) == Parser.parse("t"))
     assert(nil == Parser.parse("nil"))
     assert(l(Sym('quote), l('+, 1, 2)) == Parser.parse("`(+ 1 2)"))
+    assert(l(Sym('quote), Sym('a)) == Parser.parse("'a"))
   }
 }
 
