@@ -205,16 +205,6 @@ object Sisp {
 
   // helper for test
   object Helpers {
-    def splitFirst(imp: Atom): Atom = imp match {
-      case Cons(hd, tl) if !consp(hd) => Cons(hd, splitFirst(tl))
-      case _ => nil
-    }
-
-    def splitLast(imp: Atom): Atom = imp match {
-      case Cons(hd, tl) if !consp(hd) => splitLast(tl)
-      case tl => Cons(tl, nil)
-    }
-
     implicit def toInteger(n: Int): Integer = Integer(n)
     implicit def toSym(s: Symbol): Sym = Sym(s)
     implicit def toCons[T <% Atom](a: Tuple2[T, T]): Cons = Cons(a._1, a._2)
