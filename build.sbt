@@ -2,7 +2,7 @@ name := "sisp"
 
 version := "0.1"
 
-sbtVersion := "0.13.7"
+sbtVersion := "0.13.8"
 
 scalaVersion := "2.11.6"
 

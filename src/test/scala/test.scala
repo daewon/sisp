@@ -4,11 +4,65 @@
  basic parser
  http://stackoverflow.com/a/11533809/1513517
  */
+
 import org.scalatest.FunSuite
 import com.daewon.sisp.Sisp._
 
 import Environment._
 import Helpers._
+
+class VarArgsTest extends FunSuite {
+  test("varArgs") {
+    var env = createEnv()
+    var ret: Atom = nil
+    var value: Atom = nil
+    var parsed: Atom = nil
+    var expr = ""
+
+    expr = "((lambda (hd . tl) hd) 1 2)"
+    parsed = Parser.parse(expr)
+    ret = eval(env, parsed)
+    env = car(ret)
+    value = cdr(ret)
+    assert(value == Integer(1))
+
+    expr = "((lambda (hd . tl) tl) 1 2)"
+    parsed = Parser.parse(expr)
+    ret = eval(env, parsed)
+    env = car(ret)
+    value = cdr(ret)
+    assert(value == l(2))
+
+    expr = "((lambda (a b c . rest) rest) 1 2 3 4 5)"
+    parsed = Parser.parse(expr)
+    ret = eval(env, parsed)
+    env = car(ret)
+    value = cdr(ret)
+    assert(value == l(4, 5))
+
+    expr = "((lambda (a b c . rest) c) 1 2 3 4 5)"
+    parsed = Parser.parse(expr)
+    ret = eval(env, parsed)
+    env = car(ret)
+    value = cdr(ret)
+    assert(value == Integer(3))
+
+    expr = "((lambda args args) 1 2 3 4 5)"
+    parsed = Parser.parse(expr)
+    ret = eval(env, parsed)
+    env = car(ret)
+    value = cdr(ret)
+
+    assert(value == l(1, 2, 3, 4, 5))
+    expr = "((lambda args args))"
+    parsed = Parser.parse(expr)
+    ret = eval(env, parsed)
+    env = car(ret)
+    value = cdr(ret)
+
+    assert(value == l())
+  }
+}
 
 class ParserTest extends FunSuite {
   test("parser") {
@@ -79,6 +133,12 @@ class ShowTest extends FunSuite {
       Cons(Sym('a), l(Sym('lambda), l(Sym('a)), Sym('a)))
 
     assert(show(lambdaCons) == "(a lambda (a) a)")
+
+    val varArgs = Closure(nil,
+      Cons(Sym('a), Sym('b)),
+      Sym('a))
+
+    assert(show(varArgs) == "(lambda (a . b) a)")
   }
 }
 

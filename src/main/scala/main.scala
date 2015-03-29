@@ -35,10 +35,15 @@ object Sisp {
     case _ => false
   }
 
+  def symp(expr: Atom) = expr match {
+    case Sym(a) => true
+    case _ => false
+  }
+
   // `(a . b)
   def consp(expr: Atom) = expr match {
-    case Cons(car, cdr) if (!listp(cdr)) => true
     case Cons(car, `nil`) => false
+    case Cons(car, cdr) if (!listp(cdr)) => true
     case _ => false
   }
 
@@ -113,6 +118,7 @@ object Sisp {
     case `nil` => env
   }
 
+  // 실 인자 값에 있는 변수를 환경으로 부터 찾아서 실제로 맵핑
   // env((a . 10) (b . 20)), symbols(a b) => (10 20)
   def mapArgs(env: Atom, args: Atom): Atom = args match {
     case Cons(hd, tl) =>
@@ -121,6 +127,19 @@ object Sisp {
       val value = cdr(res)
       Cons(value, mapArgs(newEnv, tl))
     case `nil` => nil
+  }
+
+  // (a . b) => (a b)
+  def impToCons(imp: Atom): Atom = imp match {
+    case Cons(hd, tl) => Cons(hd, impToCons(tl))
+    case a => Cons(a, nil)
+  }
+
+  // (a b . c), (1 2 3 4 5) => (1 2 (3 4 5))
+  def mapArgsImp(names: Atom, args: Atom): Atom = names match {
+    case Cons(hd, `nil`) => Cons(args, nil)
+    case Cons(hd, tl) => Cons(car(args), mapArgsImp(tl, cdr(args)))
+    case `nil` =>  nil
   }
 
   def eval(env: Atom, expr: Atom): Cons = expr match {
@@ -142,11 +161,11 @@ object Sisp {
           Cons(resEnv, k)
         case _ => Cons(set(newEnv, k, value), k)
       }
-
     case Cons(Sym('lambda), tl) =>
-      val names = car(tl)
+      val paramNames = car(tl)
       val body = cadr(tl)
-      Cons(env, Closure(createEnv(env), names, body))
+      Cons(env, Closure(createEnv(env), paramNames, body))
+
     case Cons(Sym('if), Cons(cond, Cons(a, b))) =>
       val ret = eval(env, cond)
       val newEnv = car(ret)
@@ -164,7 +183,18 @@ object Sisp {
       val ret = head match {
         case BuiltIn(fn) => fn(mapArgs(env, args))
         case Closure(ev, names, body) =>
-          cdr(eval(bindEnv(ev, names, mapArgs(env, args)), body))
+          names match {
+            case a@Sym(_) =>
+              val newNames = Cons(a, nil)
+              val newArgs = Cons(mapArgs(env, args), nil)
+              cdr(eval(bindEnv(ev, newNames, newArgs), body))
+            case Cons(hd, tl) if consp(names) =>
+              val newNames = impToCons(names)
+              val newArgs = mapArgsImp(newNames, mapArgs(env, args))
+              cdr(eval(bindEnv(ev, newNames, newArgs), body))
+            case _ =>
+              cdr(eval(bindEnv(ev, names, mapArgs(env, args)), body))
+          }
       }
 
       Cons(env, ret)
@@ -172,6 +202,16 @@ object Sisp {
 
   // helper for test
   object Helpers {
+    def splitFirst(imp: Atom): Atom = imp match {
+      case Cons(hd, tl) if !consp(hd) => Cons(hd, splitFirst(tl))
+      case _ => nil
+    }
+
+    def splitLast(imp: Atom): Atom = imp match {
+      case Cons(hd, tl) if !consp(hd) => splitLast(tl)
+      case tl => Cons(tl, nil)
+    }
+
     implicit def toInteger(n: Int): Integer = Integer(n)
     implicit def toSym(s: Symbol): Sym = Sym(s)
     implicit def toCons[T <% Atom](a: Tuple2[T, T]): Cons = Cons(a._1, a._2)

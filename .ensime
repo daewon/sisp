@@ -1,18 +1,17 @@
 (
  :root-dir "/Users/blueiur/code/sisp"
  :cache-dir "/Users/blueiur/code/sisp/.ensime_cache"
- :java-home "/Library/Java/JavaVirtualMachines/jdk1.8.0_05.jdk/Contents/Home"
  :name "sisp"
- 
+ :java-home "/Library/Java/JavaVirtualMachines/jdk1.8.0_05.jdk/Contents/Home"
  :java-flags ("-Xms1024m" "-Xmx1024m" "-XX:ReservedCodeCacheSize=128m" "-XX:MaxMetaspaceSize=256m")
- :reference-source-roots nil
+ :reference-source-roots ("/Library/Java/JavaVirtualMachines/jdk1.8.0_05.jdk/Contents/Home/src.zip")
  :scala-version "2.11.6"
  :compiler-args ("-feature" "-deprecation" "-language:postfixOps" "-language:implicitConversions" "-Yrangepos")
  
  :subprojects ((
    :name "sisp"
    :module-name "sisp"
-   :source-roots ("/Users/blueiur/code/sisp/src/main/scala" "/Users/blueiur/code/sisp/src/main/java" "/Users/blueiur/code/sisp/src/test/scala" "/Users/blueiur/code/sisp/src/test/java")
+   :source-roots ("/Users/blueiur/code/sisp/src/main/scala" "/Users/blueiur/code/sisp/src/test/scala" "/Users/blueiur/code/sisp/src/test/scala-2.11" "/Users/blueiur/code/sisp/src/main/java" "/Users/blueiur/code/sisp/src/main/scala-2.11" "/Users/blueiur/code/sisp/src/test/java")
    :target "/Users/blueiur/code/sisp/target/scala-2.11/classes"
    :test-target "/Users/blueiur/code/sisp/target/scala-2.11/test-classes"
    :depends-on-modules nil
