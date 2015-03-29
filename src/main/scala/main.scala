@@ -59,7 +59,7 @@ object Sisp {
 
     // ((a . 10) (b . 20) (c . 30) (d . 40))
     def showCar(expr: Atom): String = expr match {
-      case Cons(Sym('quote), a@Cons(h, t)) => paren( showCdr(a).trim )
+      case Cons(Sym('quote), a@Cons(h, _)) => showCar(h)
       case a@Cons(hd, tl) if consp(a) && !consp(tl) => paren( showCar(hd) + " . "  + showCar(tl))
       case Cons(hd, `nil`) => paren( showCar(hd) )
       case Cons(hd, tl) => paren( (showCar(hd) + " " + showCdr(tl)).trim )
@@ -149,7 +149,7 @@ object Sisp {
     case i@Integer(n) => Cons(env, i)
     case c@Closure(env, names, body) => Cons(env, c)
     case b@BuiltIn(fn) => Cons(env, b)
-    case Cons(Sym('quote), v@_) => Cons(env, v)
+    case Cons(Sym('quote), Cons(v@_, nil)) => Cons(env, v)
     case Cons(Sym('define), Cons(k@Sym(_), Cons(v, nil))) =>
       val ret = eval(env, v)
       val newEnv = car(ret)
@@ -170,10 +170,13 @@ object Sisp {
       val ret = eval(env, cond)
       val newEnv = car(ret)
       val value = cdr(ret)
+
       value match {
-        case Sym('t) => eval(newEnv, a)
-        case _ => eval(newEnv, car(b))
+        case `nil` => eval(newEnv, car(b))
+        case Cons(`nil`, `nil`) => eval(newEnv, car(b))
+        case _ => eval(newEnv, a)
       }
+
     case _ =>
       val res = eval(env, car(expr))
       val newEnv = car(res)
@@ -241,7 +244,12 @@ object Sisp {
     // "((1 . 2) 3 . 4)"
     type A = Atom
     def expr: Parser[A] = "nil" ^^^ nil | quote | cons | impCons | factor
-    def quote: Parser[A] = "`" ~> cons ^^ { case p => Cons('quote, p) }
+    def quote: Parser[A] = ("`" | "'") ~> cons ^^ { case p =>
+      p match {
+        case Cons(hd, tl) => Cons('quote, Cons(p, nil))
+        case _ => Cons('quote, p)
+      }
+    }
     def cons: Parser[A] = "(" ~> rep(factor | expr) <~ ")" ^^ (_.toCons)
     def impCons: Parser[A] = ("(" ~> rep(expr)) ~ "." ~ (expr <~ ")") ^^ {
       case a ~ _ ~ c => a.toImproperCons(c)
