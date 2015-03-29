@@ -234,8 +234,8 @@ object Sisp {
     // "((1 . 2) 3 . 4)"
     type A = Atom
     def expr: Parser[A] = "nil" ^^^ nil | quote | cons | impCons | factor
-    def quote: Parser[A] = ("`" | "'") ~> expr ^^ { case p =>
-      p match { case _ => Cons('quote, Cons(p, nil)) }
+    def quote: Parser[A] = ("`" | "'") ~> expr ^^ {
+      case p => Cons('quote, Cons(p, nil))
     }
     def cons: Parser[A] = "(" ~> rep(factor | expr) <~ ")" ^^ (_.toCons)
     def impCons: Parser[A] = ("(" ~> rep(expr)) ~ "." ~ (expr <~ ")") ^^ {
