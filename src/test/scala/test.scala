@@ -618,5 +618,20 @@ class EvalTest extends FunSuite {
     env = car(ret)
     value = cdr(ret)
     assert(value == Integer(15))
+
+    exp = Parser.parse("""
+    | (define add2
+    |   (lambda (x . xs) (+ (* x x) (sum-list xs))))
+    """.stripMargin)
+
+    ret = eval(env, exp)
+    env = car(ret)
+    value = cdr(ret)
+
+    exp = Parser.parse("(add2 10 1 2 3 4 5)")
+    ret = eval(env, exp)
+    env = car(ret)
+    value = cdr(ret)
+    assert(value == Integer(115))
   }
 }
