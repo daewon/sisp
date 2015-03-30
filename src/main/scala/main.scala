@@ -170,10 +170,8 @@ object Sisp {
       val ret = eval(env, cond)
       val newEnv = car(ret)
       val value = cdr(ret)
-
       value match {
         case `nil` => eval(newEnv, car(b))
-        case Cons(`nil`, `nil`) => eval(newEnv, car(b))
         case _ => eval(newEnv, a)
       }
 
@@ -184,23 +182,24 @@ object Sisp {
       val args = cdr(expr)
 
       val ret = head match {
-        case BuiltIn(fn) => fn(mapArgs(env, args))
+        case a@Sym(_) => cdr(eval(newEnv, Cons(a, args)))
+        case BuiltIn(fn) => fn(mapArgs(newEnv, args))
         case Closure(ev, names, body) =>
           names match {
             case a@Sym(_) =>
               val newNames = Cons(a, nil)
-              val newArgs = Cons(mapArgs(env, args), nil)
+              val newArgs = Cons(mapArgs(newEnv, args), nil)
               cdr(eval(bindEnv(ev, newNames, newArgs), body))
             case Cons(hd, tl) if consp(names) =>
               val newNames = impToCons(names)
-              val newArgs = mapArgsImp(newNames, mapArgs(env, args))
+              val newArgs = mapArgsImp(newNames, mapArgs(newEnv, args))
               cdr(eval(bindEnv(ev, newNames, newArgs), body))
             case _ =>
-              cdr(eval(bindEnv(ev, names, mapArgs(env, args)), body))
+              cdr(eval(bindEnv(ev, names, mapArgs(newEnv, args)), body))
           }
       }
 
-      Cons(env, ret)
+      Cons(newEnv, ret)
   }
 
   // helper for test

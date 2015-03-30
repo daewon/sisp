@@ -239,6 +239,39 @@ class EvalTest extends FunSuite {
     var exp: Atom = nil
     var fromParser: Atom = nil
 
+    // built-in add
+    val binaryAdd = BuiltIn { _ match {
+      case Cons(Integer(a), Cons(Integer(b), `nil`)) => Integer(a + b)
+    }}
+    val binarySub = BuiltIn { _ match {
+      case Cons(Integer(a), Cons(Integer(b), `nil`)) => Integer(a - b)
+    }}
+    val binaryMul = BuiltIn { _ match {
+      case Cons(Integer(a), Cons(Integer(b), `nil`)) => Integer(a * b)
+    }}
+
+    env = set(env, '+, binaryAdd)
+    env = set(env, '-, binarySub)
+    env = set(env, '*, binaryMul)
+
+    // make build-in car function
+    val builtInCar = BuiltIn { _ match {
+      case Cons(hd, tl) => hd match {
+        case Cons(hd, tl) => hd
+        case _ => nil
+      }
+      case `nil` => nil
+    }}
+
+    val builtInCdr = BuiltIn { _ match {
+      case Cons(hd, tl) => cdr(hd)
+      case `nil` => nil
+    }}
+
+    // set built-in functions
+    env = set(env, 'car, builtInCar)
+    env = set(env, 'cdr, builtInCdr)
+
     // (quote a) == a
     str = "(quote a)"
     fromParser = Parser.parse(str)
@@ -335,21 +368,6 @@ class EvalTest extends FunSuite {
     value = cdr(ret)
     assert(value == Integer(100))
 
-    // built-in add
-    val binaryAdd = BuiltIn { _ match {
-      case Cons(Integer(a), Cons(Integer(b), `nil`)) => Integer(a + b)
-    }}
-    val binarySub = BuiltIn { _ match {
-      case Cons(Integer(a), Cons(Integer(b), `nil`)) => Integer(a - b)
-    }}
-    val binaryMul = BuiltIn { _ match {
-      case Cons(Integer(a), Cons(Integer(b), `nil`)) => Integer(a * b)
-    }}
-
-    env = set(env, '+, binaryAdd)
-    env = set(env, '-, binarySub)
-    env = set(env, '*, binaryMul)
-
     // (+ 100 200) == 300
     exp = l('+, 100, 200)
     ret = eval(env, exp)
@@ -432,24 +450,6 @@ class EvalTest extends FunSuite {
     env = car(ret)
     value = cdr(ret)
     assert(value == Integer(3))
-
-    // make build-in car function
-    val builtInCar = BuiltIn { _ match {
-      case Cons(hd, tl) => hd match {
-        case Cons(hd, tl) => hd
-        case _ => nil
-      }
-      case `nil` => nil
-    }}
-
-    val builtInCdr = BuiltIn { _ match {
-      case Cons(hd, tl) => cdr(hd)
-      case `nil` => nil
-    }}
-
-    // set built-in functions
-    env = set(env, 'car, builtInCar)
-    env = set(env, 'cdr, builtInCdr)
 
     str = "(car (quote (10 20)))"
     exp = l('car, l('quote, l(10, 20)))
@@ -633,5 +633,18 @@ class EvalTest extends FunSuite {
     env = car(ret)
     value = cdr(ret)
     assert(value == Integer(115))
+
+    exp = Parser.parse("""
+    | ((define sum-list2
+    |   (lambda (xs)
+    |     (if xs
+    |       (+ (car xs) (sum-list2 (cdr xs)))
+    |       0))) '(10 20 30))
+    """.stripMargin)
+
+    ret = eval(env, exp)
+    env = car(ret)
+    value = cdr(ret)
+    assert(value == Integer(60))
   }
 }
