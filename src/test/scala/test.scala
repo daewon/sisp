@@ -11,6 +11,17 @@ import com.daewon.sisp.Sisp._
 import Environment._
 import Helpers._
 
+class ScalaTest extends FunSuite {
+  test("scalaTest") {
+    trait Obj
+    class Child(a: => Obj) extends Obj
+    class Parent(a: => Obj) extends Obj
+
+    lazy val a: Obj = new Child(b)
+    lazy val b: Obj = new Parent(a)
+  }
+}
+
 class VarArgsTest extends FunSuite {
   test("varArgs") {
     var env = createEnv()
@@ -564,7 +575,14 @@ class EvalTest extends FunSuite {
     value = cdr(ret)
     assert(value == Integer(12))
 
-    str = "(define fact (lambda (x) (if (= x 0) 1 (* x (fact (- x 1))))))"
+    str = """
+    |(define fact
+    |  (lambda (x)
+    |    (if (= x 0)
+    |      1
+    |      (* x (fact (- x 1))))))
+    """.stripMargin
+
     exp = l(
       'define,
       'fact,
@@ -613,6 +631,24 @@ class EvalTest extends FunSuite {
     env = car(ret)
     value = cdr(ret)
 
+    exp = Parser.parse("""
+    | (define sum-list2
+    |   (lambda xs
+    |     (if xs
+    |       (+ (car xs) (sum-list (cdr xs)))
+    |       0)))
+    """.stripMargin)
+
+    ret = eval(env, exp)
+    env = car(ret)
+    value = cdr(ret)
+
+    exp = Parser.parse("(sum-list2 1 2 3)")
+    ret = eval(env, exp)
+    env = car(ret)
+    value = cdr(ret)
+    assert(value == Integer(6))
+
     exp = Parser.parse("(add 1 2 3 4 5)")
     ret = eval(env, exp)
     env = car(ret)
@@ -621,7 +657,8 @@ class EvalTest extends FunSuite {
 
     exp = Parser.parse("""
     | (define add2
-    |   (lambda (x . xs) (+ (* x x) (sum-list xs))))
+    |   (lambda (x . xs)
+    |     (+ (* x x) (sum-list xs))))
     """.stripMargin)
 
     ret = eval(env, exp)
