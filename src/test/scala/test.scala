@@ -85,23 +85,68 @@ class MacroTest extends FunSuite {
       case `nil` => nil
     }}
 
+    // built-in add
+    val binaryAdd = BuiltIn { _ match {
+      case Cons(Integer(a), Cons(Integer(b), `nil`)) => Integer(a + b)
+    }}
+    val binarySub = BuiltIn { _ match {
+      case Cons(Integer(a), Cons(Integer(b), `nil`)) => Integer(a - b)
+    }}
+    val binaryMul = BuiltIn { _ match {
+      case Cons(Integer(a), Cons(Integer(b), `nil`)) => Integer(a * b)
+    }}
+
+    env = set(env, '+, binaryAdd)
+    env = set(env, '-, binarySub)
+    env = set(env, '*, binaryMul)
+
     // set built-in functions
     env = set(env, 'car, builtInCar)
     env = set(env, 'cdr, builtInCdr)
     env = set(env, 'cons, builtInCons)
 
-    expr = "(defmacro (unless x yes no) (if x no yes))"
+    expr = "(define plus (lambda (a b) (+ a b)))"
     parsed = Parser.parse(expr)
     ret = eval(env, parsed)
     env = car(ret)
     value = cdr(ret)
 
-    expr = "(unless nil 10 20)"
+    expr = "(plus 1 2)"
     parsed = Parser.parse(expr)
     ret = eval(env, parsed)
     env = car(ret)
     value = cdr(ret)
-    assert(value == Integer(10))
+
+    expr = "(defmacro (unless pre yes no) (if p no yes))"
+    parsed = Parser.parse(expr)
+    ret = eval(env, parsed)
+    env = car(ret)
+    value = cdr(ret)
+
+    expr = "(unless nil (cons 10 20) (cons 20 30))"
+    parsed = Parser.parse(expr)
+    ret = eval(env, parsed)
+    env = car(ret)
+    value = cdr(ret)
+    assert(value == Cons(Integer(10), Integer(20)))
+
+    expr = "(defmacro (ignore x) (cons 'quote (cons x nil)))"
+    parsed = Parser.parse(expr)
+    ret = eval(env, parsed)
+    env = car(ret)
+    value = cdr(ret)
+
+    expr = "(ignore foo)"
+    parsed = Parser.parse(expr)
+    ret = eval(env, parsed)
+    env = car(ret)
+    value = cdr(ret)
+
+    expr = "foo"
+    parsed = Parser.parse(expr)
+    ret = eval(env, parsed)
+    env = car(ret)
+    value = cdr(ret)
   }
 }
 

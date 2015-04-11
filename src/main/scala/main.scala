@@ -20,6 +20,7 @@ object Sisp {
   case object Sym { def apply(str: String) = new Sym(Symbol(str)) }
   case class BuiltIn(val call: Atom => Atom) extends Atom
   case class Closure(var env: Atom, args: Atom, body: Atom) extends Atom
+  case class Macro(var env: Atom, args: Atom, body: Atom) extends Atom
 
   // built-in functions
   def cons(car: Atom, cdr: Atom): Atom = Cons(car, cdr)
@@ -67,7 +68,7 @@ object Sisp {
       case Sym(s) => s.toString.drop(1)
       case BuiltIn(fn) => showCar(Sym(Symbol("built-in"))) + " " + fn.toString
       case Closure(_, args, body) => showCar(Cons(Sym('lambda), Cons(args, Cons(body, nil))))
-      // case Macro(_, args, body) => showCar(Cons(Sym('Macro), Cons(args, Cons(body, nil))))
+      case Macro(_, args, body) => showCar(Cons(Sym('Macro), Cons(args, Cons(body, nil))))
       case `nil` => ""
     }
 
@@ -156,6 +157,7 @@ object Sisp {
     case s@Sym(name) => Cons(env, get(env, s))
     case i@Integer(n) => Cons(env, i)
     case c@Closure(env, names, body) => Cons(env, c)
+    case m@Macro(env, names, body) => Cons(env, m)
     case b@BuiltIn(fn) => Cons(env, b)
     case Cons(Sym('quote), Cons(v@_, nil)) => Cons(env, v)
     case Cons(Sym('define), Cons(k@Sym(_), Cons(v, nil))) =>
@@ -164,6 +166,10 @@ object Sisp {
       val value = cdr(ret)
       value match {
         case c@Closure(_, _, _) =>
+          val resEnv = set(newEnv, k, c)
+          c.env = createEnv(resEnv) // re-assign env to closure
+          Cons(resEnv, k)
+        case c@Macro(_, _, _) =>
           val resEnv = set(newEnv, k, c)
           c.env = createEnv(resEnv) // re-assign env to closure
           Cons(resEnv, k)
@@ -177,9 +183,9 @@ object Sisp {
     case Cons(Sym('defmacro), tl) =>
       val paramNames = car(tl)
       val name = car(paramNames).asInstanceOf[Sym]
-      val args = cdr(paramNames)
+      val params = cdr(paramNames)
       val body = cadr(tl)
-      val exp = Cons(Sym('define), Cons(name, Cons(Closure(createEnv(env), args, body), nil)))
+      val exp = Cons(Sym('define), Cons(name, Cons(Macro(createEnv(env), params, body), nil)))
       eval(env, exp)
 
     case Cons(Sym('if), Cons(cond, Cons(a, b))) =>
@@ -213,8 +219,10 @@ object Sisp {
             case _ =>
               cdr(eval(bindEnv(ev, names, mapArgs(newEnv, args)), body))
           }
+        case Macro(ev, names, body) =>
+          val expended = cdr(eval(bindEnv(ev, names, args), body))
+          cdr(eval(ev, expended))
       }
-
       Cons(newEnv, ret)
   }
 
