@@ -142,6 +142,13 @@ object Sisp {
     case `nil` =>  nil
   }
 
+  def eval(env: Atom, program: List[Atom]): Cons = {
+    program.foldLeft(Cons(env, nil)) { (acc, curr) =>
+      val (env, value) = (car(acc), cdr(acc))
+      eval(env, curr)
+    }
+  }
+
   def eval(env: Atom, expr: Atom): Cons = expr match {
     case s@Sym('t) => Cons(env, s)
     case s@Sym('nil) => Cons(env, nil)
@@ -232,6 +239,7 @@ object Sisp {
 
     // "((1 . 2) 3 . 4)"
     type A = Atom
+    def program: Parser[List[A]] = rep(expr)
     def expr: Parser[A] = "nil" ^^^ nil | quote | cons | impCons | factor
     def quote: Parser[A] = ("`" | "'") ~> expr ^^ {
       case p => Cons('quote, Cons(p, nil))
@@ -246,7 +254,7 @@ object Sisp {
   }
 
   object Parser extends LispParser {
-    def parse(input: String) = parseAll(expr, input) match {
+    def parse(input: String): List[A] = parseAll(program, input) match {
       case Success(result, _) => result
       case failure : NoSuccess => scala.sys.error(failure.msg)
     }

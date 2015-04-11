@@ -11,59 +11,59 @@ import com.daewon.sisp.Sisp._
 import Environment._
 import Helpers._
 
-class ScalaTest extends FunSuite {
-  test("scalaTest") {
-    trait Obj
-    class Child(a: => Obj) extends Obj
-    class Parent(a: => Obj) extends Obj
+// class ScalaTest extends FunSuite {
+//   test("scalaTest") {
+//     trait Obj
+//     class Child(a: => Obj) extends Obj
+//     class Parent(a: => Obj) extends Obj
 
-    lazy val a: Obj = new Child(b)
-    lazy val b: Obj = new Parent(a)
+//     lazy val a: Obj = new Child(b)
+//     lazy val b: Obj = new Parent(a)
 
-    trait YesNo[A] {
-      def yesno(value: A): Boolean
-    }
+//     trait YesNo[A] {
+//       def yesno(value: A): Boolean
+//     }
 
-    object YesNo {
-      implicit val intYesNo = new YesNo[Int] {
-        def yesno(value: Int) = value match {
-          case 0 => false
-          case _ => true
-        }
-      }
+//     object YesNo {
+//       implicit val intYesNo = new YesNo[Int] {
+//         def yesno(value: Int) = value match {
+//           case 0 => false
+//           case _ => true
+//         }
+//       }
 
-      implicit val stringYesNo = new YesNo[String] {
-        def yesno(value: String) = value match {
-          case "" | "false" => false
-          case _  => true
-        }
-      }
-    }
+//       implicit val stringYesNo = new YesNo[String] {
+//         def yesno(value: String) = value match {
+//           case "" | "false" => false
+//           case _  => true
+//         }
+//       }
+//     }
 
-    object YesNoWriter {
-      def write2[A](value: A)(implicit conv: YesNo[A]): Boolean = {
-        conv.yesno(value)
-      }
+//     object YesNoWriter {
+//       def write2[A](value: A)(implicit conv: YesNo[A]): Boolean = {
+//         conv.yesno(value)
+//       }
 
-      def write[A: YesNo](value: A): Boolean = {
-        implicitly[YesNo[A]].yesno(value)
-      }
-    }
+//       def write[A: YesNo](value: A): Boolean = {
+//         implicitly[YesNo[A]].yesno(value)
+//       }
+//     }
 
-    // println(YesNoWriter.write(1))
-    // println(YesNoWriter.write(0))
+//     // println(YesNoWriter.write(1))
+//     // println(YesNoWriter.write(0))
 
-    // println(YesNoWriter.write("false"))
-    // println(YesNoWriter.write(""))
-  }
-}
+//     // println(YesNoWriter.write("false"))
+//     // println(YesNoWriter.write(""))
+//   }
+// }
 
 class VarArgsTest extends FunSuite {
   test("varArgs") {
     var env = createEnv()
     var ret: Atom = nil
     var value: Atom = nil
-    var parsed: Atom = nil
+    var parsed: List[Atom] = List(nil)
     var expr = ""
 
     expr = "((lambda (hd . tl) hd) 1 2)"
@@ -114,27 +114,27 @@ class VarArgsTest extends FunSuite {
 
 class ParserTest extends FunSuite {
   test("parser") {
-    assert(l() == Parser.parse("()"))
-    assert(nil == Parser.parse("nil"))
-    assert(Parser.parse("nil") == Parser.parse("()"))
+    assert(l() == Parser.parse("()").head)
+    assert(nil == Parser.parse("nil").head)
+    assert(Parser.parse("nil").head == Parser.parse("()").head)
 
-    assert(l(1, 2) == Parser.parse("(1 2)"))
-    assert(Cons(1, 2) == Parser.parse("(1 . 2)"))
-    assert(Cons(1, Cons(2, 3))  == Parser.parse("(1 2 . 3)"))
-    assert(Cons(Cons(1, 2), 3) == Parser.parse("((1 . 2) . 3)"))
-    assert(Cons(Cons(1, 2), Cons(3, nil)) == Parser.parse("((1 . 2) . (3))"))
-    assert(Cons(Cons(1, 2), Cons(3, 4)) == Parser.parse("((1 . 2) 3 . 4)"))
-    assert(Cons(Cons(Integer(1), Integer(2)), Cons(Integer(3), Cons(Integer(4), nil))) == Parser.parse("((1 . 2) 3 4)"))
-    assert(Cons(Cons(Cons(Integer(1),Integer(2)),Integer(3)),Integer(4)) == Parser.parse("(((1 . 2) . 3) . 4)"))
+    assert(l(1, 2) == Parser.parse("(1 2)").head)
+    assert(Cons(1, 2) == Parser.parse("(1 . 2)").head)
+    assert(Cons(1, Cons(2, 3))  == Parser.parse("(1 2 . 3)").head)
+    assert(Cons(Cons(1, 2), 3) == Parser.parse("((1 . 2) . 3)").head)
+    assert(Cons(Cons(1, 2), Cons(3, nil)) == Parser.parse("((1 . 2) . (3))").head)
+    assert(Cons(Cons(1, 2), Cons(3, 4)) == Parser.parse("((1 . 2) 3 . 4)").head)
+    assert(Cons(Cons(Integer(1), Integer(2)), Cons(Integer(3), Cons(Integer(4), nil))) == Parser.parse("((1 . 2) 3 4)").head)
+    assert(Cons(Cons(Cons(Integer(1),Integer(2)),Integer(3)),Integer(4)) == Parser.parse("(((1 . 2) . 3) . 4)").head)
 
-    assert(Integer(1) == Parser.parse("1"))
-    assert(Sym('+) == Parser.parse("+"))
-    assert(l('+, 1, 2) == Parser.parse("(+ 1 2)"))
-    assert(l('define, 'a, l('-, 1, 2)) == Parser.parse("(define a (- 1 2))"))
-    assert(Sym('t) == Parser.parse("t"))
-    assert(nil == Parser.parse("nil"))
-    assert(l(Sym('quote), l('+, 1, 2)) == Parser.parse("`(+ 1 2)"))
-    assert(l(Sym('quote), Sym('a)) == Parser.parse("'a"))
+    assert(Integer(1) == Parser.parse("1").head)
+    assert(Sym('+) == Parser.parse("+").head)
+    assert(l('+, 1, 2) == Parser.parse("(+ 1 2)").head)
+    assert(l('define, 'a, l('-, 1, 2)) == Parser.parse("(define a (- 1 2))").head)
+    assert(Sym('t) == Parser.parse("t").head)
+    assert(nil == Parser.parse("nil").head)
+    assert(l(Sym('quote), l('+, 1, 2)) == Parser.parse("`(+ 1 2)").head)
+    assert(l(Sym('quote), Sym('a)) == Parser.parse("'a").head)
   }
 }
 
@@ -284,7 +284,7 @@ class EvalTest extends FunSuite {
     var ret: Atom = nil
     var str: String = ""
     var exp: Atom = nil
-    var fromParser: Atom = nil
+    var fromParser: List[Atom] = List(nil)
 
     // built-in add
     val binaryAdd = BuiltIn { _ match {
@@ -329,7 +329,7 @@ class EvalTest extends FunSuite {
     str = "(quote a)"
     fromParser = Parser.parse(str)
     exp = l('quote, 'a)
-    assert(exp == fromParser)
+    assert(exp == fromParser.head)
 
     ret = eval(env, exp)
     env = car(ret)
@@ -340,7 +340,7 @@ class EvalTest extends FunSuite {
     str = "(quote (1 2 3))"
     fromParser = Parser.parse(str)
     exp = l('quote, l(1, 2, 3))
-    assert(exp == fromParser)
+    assert(exp == fromParser.head)
 
     ret = eval(env, exp)
     env = car(ret)
@@ -351,7 +351,7 @@ class EvalTest extends FunSuite {
     str = "'(1 2 3)"
     fromParser = Parser.parse(str)
     exp = l('quote, l(1, 2, 3))
-    assert(exp == fromParser)
+    assert(exp == fromParser.head)
 
     ret = eval(env, exp)
     env = car(ret)
@@ -508,7 +508,7 @@ class EvalTest extends FunSuite {
         2)
 
     fromParser = Parser.parse(str)
-    assert(exp == fromParser)
+    assert(exp == fromParser.head)
 
     ret = eval(env, exp)
     env = car(ret)
@@ -519,8 +519,7 @@ class EvalTest extends FunSuite {
     exp = l('car, l('quote, l(10, 20)))
 
     fromParser = Parser.parse(str)
-
-    assert(exp == fromParser)
+    assert(exp == fromParser.head)
 
     ret = eval(env, exp)
     env = car(ret)
@@ -530,7 +529,7 @@ class EvalTest extends FunSuite {
     str = "(cdr (quote (10 20)))"
     exp = l('cdr, l('quote, l(10, 20)))
     fromParser = Parser.parse(str)
-    assert(exp == fromParser)
+    assert(exp == fromParser.head)
 
     ret = eval(env, exp)
     env = car(ret)
@@ -542,14 +541,14 @@ class EvalTest extends FunSuite {
     exp = l('cdr, l('quote, l(10, 20)))
 
     fromParser = Parser.parse(str)
-    assert(exp == fromParser)
+    assert(exp == fromParser.head)
 
     ret = eval(env, exp)
     env = car(ret)
     value = cdr(ret)
     assert(value == l(Integer(20)))
 
-    exp = Parser.parse("(car '(3 2 1))")
+    exp = Parser.parse("(car '(3 2 1))").head
     ret = eval(env, exp)
     env = car(ret)
     value = cdr(ret)
@@ -575,7 +574,7 @@ class EvalTest extends FunSuite {
     str = "(if t 3 4)"
     exp = l('if, 't, 3, 4)
     fromParser = Parser.parse(str)
-    assert(exp == fromParser)
+    assert(exp == fromParser.head)
 
     ret = eval(env, exp)
     env = car(ret)
@@ -585,7 +584,7 @@ class EvalTest extends FunSuite {
     str = "(if nil 3 4)"
     exp = l('if, 'nil, 3, 4)
     fromParser = Parser.parse(str)
-    assert(exp == fromParser)
+    assert(exp == fromParser.head)
 
     val equal = BuiltIn { args: Atom =>
       if (car(args) == cadr(args)) Sym('t)
@@ -596,7 +595,7 @@ class EvalTest extends FunSuite {
     env = set(env, '=, equal)
     exp = l('if, l('=, 1, 1), 3, 4)
     fromParser = Parser.parse(str)
-    assert(exp == fromParser)
+    assert(exp == fromParser.head)
 
     ret = eval(env, exp)
     env = car(ret)
@@ -606,7 +605,7 @@ class EvalTest extends FunSuite {
     str = "(if (= 1 2) 3 4)"
     exp = l('if, l('=, 1, 2), 3, 4)
     fromParser = Parser.parse(str)
-    assert(exp == fromParser)
+    assert(exp == fromParser.head)
 
     ret = eval(env, exp)
     env = car(ret)
@@ -616,7 +615,7 @@ class EvalTest extends FunSuite {
     str = "(* 2 ((lambda (x) (+ x x)) 3))"
     exp = l('*, 2, l(l('lambda, l('x), l('+, 'x, 'x)), 3))
     fromParser = Parser.parse(str)
-    assert(exp == fromParser)
+    assert(exp == fromParser.head)
 
     ret = eval(env, exp)
     env = car(ret)
@@ -639,7 +638,7 @@ class EvalTest extends FunSuite {
           l('*, 'x, l('fact, l('-, 'x, 1)) ))))
 
     fromParser = Parser.parse(str)
-    assert(exp == fromParser)
+    assert(exp == fromParser.head)
 
     ret = eval(env, exp)
     env = car(ret)
@@ -653,7 +652,7 @@ class EvalTest extends FunSuite {
     assert(value == Integer(120))
 
     str = "(cons (cons 1 2) (cons 3 4))"
-    exp = Parser.parse(str)
+    exp = Parser.parse(str).head
     ret = eval(env, exp)
     env = car(ret)
     value = cdr(ret)
@@ -664,13 +663,13 @@ class EvalTest extends FunSuite {
     |     (if xs
     |       (+ (car xs) (sum-list (cdr xs)))
     |       0)))
-    """.stripMargin)
+    """.stripMargin).head
 
     ret = eval(env, exp)
     env = car(ret)
     value = cdr(ret)
 
-    exp = Parser.parse("(sum-list '(1 2 3))")
+    exp = Parser.parse("(sum-list '(1 2 3))").head
     ret = eval(env, exp)
     env = car(ret)
     value = cdr(ret)
@@ -679,7 +678,7 @@ class EvalTest extends FunSuite {
     exp = Parser.parse("""
     | (define add
     |   (lambda xs (sum-list xs)))
-    """.stripMargin)
+    """.stripMargin).head
 
     ret = eval(env, exp)
     env = car(ret)
@@ -691,19 +690,19 @@ class EvalTest extends FunSuite {
     |     (if xs
     |       (+ (car xs) (sum-list (cdr xs)))
     |       0)))
-    """.stripMargin)
+    """.stripMargin).head
 
     ret = eval(env, exp)
     env = car(ret)
     value = cdr(ret)
 
-    exp = Parser.parse("(sum-list2 1 2 3)")
+    exp = Parser.parse("(sum-list2 1 2 3)").head
     ret = eval(env, exp)
     env = car(ret)
     value = cdr(ret)
     assert(value == Integer(6))
 
-    exp = Parser.parse("(add 1 2 3 4 5)")
+    exp = Parser.parse("(add 1 2 3 4 5)").head
     ret = eval(env, exp)
     env = car(ret)
     value = cdr(ret)
@@ -713,13 +712,13 @@ class EvalTest extends FunSuite {
     | (define add2
     |   (lambda (x . xs)
     |     (+ (* x x) (sum-list xs))))
-    """.stripMargin)
+    """.stripMargin).head
 
     ret = eval(env, exp)
     env = car(ret)
     value = cdr(ret)
 
-    exp = Parser.parse("(add2 10 1 2 3 4 5)")
+    exp = Parser.parse("(add2 10 1 2 3 4 5)").head
     ret = eval(env, exp)
     env = car(ret)
     value = cdr(ret)
@@ -731,7 +730,7 @@ class EvalTest extends FunSuite {
     |     (if xs
     |       (+ (car xs) (sum-list2 (cdr xs)))
     |       0))) '(10 20 30))
-    """.stripMargin)
+    """.stripMargin).head
 
     ret = eval(env, exp)
     env = car(ret)
