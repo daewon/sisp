@@ -736,5 +736,16 @@ class EvalTest extends FunSuite {
     env = car(ret)
     value = cdr(ret)
     assert(value == Integer(60))
+
+    exp = Parser.parse("""(define list (lambda xs xs)) 10 20""".stripMargin).head
+    ret = eval(env, exp)
+    env = car(ret)
+    value = cdr(ret)
+
+    exp = Parser.parse("""(list 10 20)""".stripMargin).head
+    ret = eval(env, exp)
+    env = car(ret)
+    value = cdr(ret)
+    assert(value == Cons(Integer(10), Cons(Integer(20), nil)))
   }
 }
