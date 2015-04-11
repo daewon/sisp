@@ -19,6 +19,42 @@ class ScalaTest extends FunSuite {
 
     lazy val a: Obj = new Child(b)
     lazy val b: Obj = new Parent(a)
+
+    trait YesNo[A] {
+      def yesno(value: A): Boolean
+    }
+
+    object YesNo {
+      implicit val intYesNo = new YesNo[Int] {
+        def yesno(value: Int) = value match {
+          case 0 => false
+          case _ => true
+        }
+      }
+
+      implicit val stringYesNo = new YesNo[String] {
+        def yesno(value: String) = value match {
+          case "" | "false" => false
+          case _  => true
+        }
+      }
+    }
+
+    object YesNoWriter {
+      def write2[A](value: A)(implicit conv: YesNo[A]): Boolean = {
+        conv.yesno(value)
+      }
+
+      def write[A: YesNo](value: A): Boolean = {
+        implicitly[YesNo[A]].yesno(value)
+      }
+    }
+
+    // println(YesNoWriter.write(1))
+    // println(YesNoWriter.write(0))
+
+    // println(YesNoWriter.write("false"))
+    // println(YesNoWriter.write(""))
   }
 }
 
@@ -279,9 +315,15 @@ class EvalTest extends FunSuite {
       case `nil` => nil
     }}
 
+    val builtInCons = BuiltIn { _ match {
+      case a@Cons(hd, tl) => Cons(hd, car(tl))
+      case `nil` => nil
+    }}
+
     // set built-in functions
     env = set(env, 'car, builtInCar)
     env = set(env, 'cdr, builtInCdr)
+    env = set(env, 'cons, builtInCons)
 
     // (quote a) == a
     str = "(quote a)"
@@ -424,6 +466,7 @@ class EvalTest extends FunSuite {
     )
 
     val closureEnv = createEnv(env)
+
     // (make-adder 10)
     exp = l(Sym("make-adder"), 10)
     ret = eval(env, exp)
@@ -442,6 +485,16 @@ class EvalTest extends FunSuite {
     env = car(ret)
     value = cdr(ret)
     assert(value == Integer(110))
+
+    exp = l(l(l('define, Sym("make-adder2"),
+      l('lambda, l('a),
+        l('lambda, l('b),
+          l('+, 'a, 'b)))), Integer(1)), Integer(2))
+
+    ret = eval(env, exp)
+    env = car(ret)
+    value = cdr(ret)
+    assert(value == Integer(3))
 
     str = "(((lambda (a) (lambda (b) (+ a b))) 1) 2)" // == 3
     exp =
@@ -534,11 +587,6 @@ class EvalTest extends FunSuite {
     fromParser = Parser.parse(str)
     assert(exp == fromParser)
 
-    ret = eval(env, exp)
-    env = car(ret)
-    value = cdr(ret)
-    assert(value == Integer(4))
-
     val equal = BuiltIn { args: Atom =>
       if (car(args) == cadr(args)) Sym('t)
       else nil
@@ -603,6 +651,12 @@ class EvalTest extends FunSuite {
     env = car(ret)
     value = cdr(ret)
     assert(value == Integer(120))
+
+    str = "(cons (cons 1 2) (cons 3 4))"
+    exp = Parser.parse(str)
+    ret = eval(env, exp)
+    env = car(ret)
+    value = cdr(ret)
 
     exp = Parser.parse("""
     | (define sum-list
