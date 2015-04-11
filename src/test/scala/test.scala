@@ -117,7 +117,12 @@ class MacroTest extends FunSuite {
     env = car(ret)
     value = cdr(ret)
 
-    expr = "(defmacro (unless pre yes no) (if p no yes))"
+    expr = """
+    |(defmacro
+    |  (unless pre yes no)
+    |    (cons 'if (cons 'pre (cons no (cons yes nil)))))
+    """.stripMargin
+
     parsed = Parser.parse(expr)
     ret = eval(env, parsed)
     env = car(ret)

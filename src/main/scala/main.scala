@@ -220,7 +220,9 @@ object Sisp {
               cdr(eval(bindEnv(ev, names, mapArgs(newEnv, args)), body))
           }
         case Macro(ev, names, body) =>
+          sh(body)
           val expended = cdr(eval(bindEnv(ev, names, args), body))
+          sh(expended)
           cdr(eval(ev, expended))
       }
       Cons(newEnv, ret)
