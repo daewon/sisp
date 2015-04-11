@@ -67,6 +67,7 @@ object Sisp {
       case Sym(s) => s.toString.drop(1)
       case BuiltIn(fn) => showCar(Sym(Symbol("built-in"))) + " " + fn.toString
       case Closure(_, args, body) => showCar(Cons(Sym('lambda), Cons(args, Cons(body, nil))))
+      // case Macro(_, args, body) => showCar(Cons(Sym('Macro), Cons(args, Cons(body, nil))))
       case `nil` => ""
     }
 
@@ -172,6 +173,14 @@ object Sisp {
       val paramNames = car(tl)
       val body = cadr(tl)
       Cons(env, Closure(createEnv(env), paramNames, body))
+
+    case Cons(Sym('defmacro), tl) =>
+      val paramNames = car(tl)
+      val name = car(paramNames).asInstanceOf[Sym]
+      val args = cdr(paramNames)
+      val body = cadr(tl)
+      val exp = Cons(Sym('define), Cons(name, Cons(Closure(createEnv(env), args, body), nil)))
+      eval(env, exp)
 
     case Cons(Sym('if), Cons(cond, Cons(a, b))) =>
       val ret = eval(env, cond)

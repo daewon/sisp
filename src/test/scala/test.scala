@@ -58,6 +58,53 @@ import Helpers._
 //   }
 // }
 
+class MacroTest extends FunSuite {
+  test("macro") {
+    var env = createEnv()
+    var ret: Atom = nil
+    var value: Atom = nil
+    var parsed: List[Atom] = List(nil)
+    var expr = ""
+
+    // make build-in car function
+    val builtInCar = BuiltIn { _ match {
+      case Cons(hd, tl) => hd match {
+        case Cons(hd, tl) => hd
+        case _ => nil
+      }
+      case `nil` => nil
+    }}
+
+    val builtInCdr = BuiltIn { _ match {
+      case Cons(hd, tl) => cdr(hd)
+      case `nil` => nil
+    }}
+
+    val builtInCons = BuiltIn { _ match {
+      case a@Cons(hd, tl) => Cons(hd, car(tl))
+      case `nil` => nil
+    }}
+
+    // set built-in functions
+    env = set(env, 'car, builtInCar)
+    env = set(env, 'cdr, builtInCdr)
+    env = set(env, 'cons, builtInCons)
+
+    expr = "(defmacro (unless x yes no) (if x no yes))"
+    parsed = Parser.parse(expr)
+    ret = eval(env, parsed)
+    env = car(ret)
+    value = cdr(ret)
+
+    expr = "(unless nil 10 20)"
+    parsed = Parser.parse(expr)
+    ret = eval(env, parsed)
+    env = car(ret)
+    value = cdr(ret)
+    assert(value == Integer(10))
+  }
+}
+
 class VarArgsTest extends FunSuite {
   test("varArgs") {
     var env = createEnv()
