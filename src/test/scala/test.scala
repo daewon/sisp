@@ -11,52 +11,26 @@ import com.daewon.sisp.Sisp._
 import Environment._
 import Helpers._
 
-// class ScalaTest extends FunSuite {
-//   test("scalaTest") {
-//     trait Obj
-//     class Child(a: => Obj) extends Obj
-//     class Parent(a: => Obj) extends Obj
+class ScalaTest extends FunSuite {
+  test("scalaTest") {
+    trait CanDouble[A] {
+      def double(a: A): A
+    }
 
-//     lazy val a: Obj = new Child(b)
-//     lazy val b: Obj = new Parent(a)
+    implicit def stringDouble: CanDouble[String] = new CanDouble[String] {
+      def double(a: String) = a + a
+    }
 
-//     trait YesNo[A] {
-//       def yesno(value: A): Boolean
-//     }
+    implicit def numericDouble[A: Numeric]: CanDouble[A] = new CanDouble[A] {
+      def double(a: A) = implicitly[Numeric[A]].plus(a, a)
+    }
 
-//     object YesNo {
-//       implicit val intYesNo = new YesNo[Int] {
-//         def yesno(value: Int) = value match {
-//           case 0 => false
-//           case _ => true
-//         }
-//       }
+    def double[A: CanDouble](a: A) = implicitly[CanDouble[A]].double(a)
 
-//       implicit val stringYesNo = new YesNo[String] {
-//         def yesno(value: String) = value match {
-//           case "" | "false" => false
-//           case _  => true
-//         }
-//       }
-//     }
-
-//     object YesNoWriter {
-//       def write2[A](value: A)(implicit conv: YesNo[A]): Boolean = {
-//         conv.yesno(value)
-//       }
-
-//       def write[A: YesNo](value: A): Boolean = {
-//         implicitly[YesNo[A]].yesno(value)
-//       }
-//     }
-
-//     // println(YesNoWriter.write(1))
-//     // println(YesNoWriter.write(0))
-
-//     // println(YesNoWriter.write("false"))
-//     // println(YesNoWriter.write(""))
-//   }
-// }
+    println(double("aa"))
+    println(double(10))
+  }
+}
 
 class MacroTest extends FunSuite {
   test("macro") {

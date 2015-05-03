@@ -16,7 +16,8 @@ scalacOptions ++= Seq(
 
 libraryDependencies ++= Seq(
   "org.scalatest" % "scalatest_2.11" % "2.1.3" % "test",
-  "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.3"
+  "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.3",
+  "jline" % "jline" % "2.12"
 )
 
 resolvers ++= Seq(

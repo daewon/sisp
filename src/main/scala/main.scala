@@ -76,7 +76,6 @@ object Sisp {
   }
 
   def sh(value: Atom) = println(show(value))
-
   // env
   // (nil (foo . 1) (bar . 20)), cons of  list: car is parent
   object Environment {
@@ -251,6 +250,46 @@ object Sisp {
       def toCons = makeCons(ls)
       def toImproperCons(last: T) = makeImproperCons(ls, last)
     }
+
+    def createEnvWithBuiltIn = {
+      var env = createEnv();
+
+      val builtInCar = BuiltIn { _ match {
+        case Cons(hd, tl) => hd match {
+          case Cons(hd, tl) => hd
+          case _ => nil
+        }
+        case `nil` => nil
+      }}
+      val builtInCdr = BuiltIn { _ match {
+        case Cons(hd, tl) => cdr(hd)
+        case `nil` => nil
+      }}
+      val builtInCons = BuiltIn { _ match {
+        case a@Cons(hd, tl) => Cons(hd, car(tl))
+        case `nil` => nil
+      }}
+      val binaryAdd = BuiltIn { _ match {
+        case Cons(Integer(a), Cons(Integer(b), `nil`)) => Integer(a + b)
+      }}
+      val binarySub = BuiltIn { _ match {
+        case Cons(Integer(a), Cons(Integer(b), `nil`)) => Integer(a - b)
+      }}
+      val binaryMul = BuiltIn { _ match {
+        case Cons(Integer(a), Cons(Integer(b), `nil`)) => Integer(a * b)
+      }}
+
+      env = set(env, '+, binaryAdd)
+      env = set(env, '-, binarySub)
+      env = set(env, '*, binaryMul)
+
+      // set built-in functions
+      env = set(env, 'car, builtInCar)
+      env = set(env, 'cdr, builtInCdr)
+      env = set(env, 'cons, builtInCons)
+
+      env
+    }
   }
 
   class LispParser extends JavaTokenParsers  {
@@ -281,5 +320,37 @@ object Sisp {
 }
 
 object Main extends App {
-  // TODO: REPL(read eval print loop)
+  import jline.console.ConsoleReader;
+  import jline.console.completer._
+  import Sisp._
+  import Environment._
+  import Helpers._
+
+  val reader: ConsoleReader = new ConsoleReader();
+  reader.setPrompt("sisp> ");
+
+  def repl(env: Atom): Unit = {
+    try {
+      if (args.length == 100) {
+      } else {
+        val line = reader.readLine()
+        val parsed = Parser.parse(line)
+        val ret: Atom = eval(env, parsed)
+
+        val newEnv: Atom = car(ret)
+        val value: Atom = cdr(ret)
+
+        sh(value)
+
+        repl(newEnv)
+      }
+    } catch {
+      case e: Exception => {
+        // scala.sys.error(e.getMessage)
+        repl(env)
+      }
+    }
+  }
+
+  repl(createEnvWithBuiltIn)
 }
