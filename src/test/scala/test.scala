@@ -3,6 +3,9 @@
 
  basic parser
  http://stackoverflow.com/a/11533809/1513517
+
+ jline example
+ https://github.com/jline/jline2/blob/master/src/test/java/jline/example/Example.java
  */
 
 import org.scalatest.FunSuite
