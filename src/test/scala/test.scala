@@ -102,12 +102,7 @@ class MacroTest extends FunSuite {
     ret = eval(env, parsed)
     env = car(ret)
     value = cdr(ret)
-
-    expr = "foo"
-    parsed = Parser.parse(expr)
-    ret = eval(env, parsed)
-    env = car(ret)
-    value = cdr(ret)
+    assert(value == Sym('foo))
   }
 }
 

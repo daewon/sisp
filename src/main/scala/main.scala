@@ -219,9 +219,10 @@ object Sisp {
               cdr(eval(bindEnv(ev, names, mapArgs(newEnv, args)), body))
           }
         case Macro(ev, names, body) =>
-          sh(body)
           val expended = cdr(eval(bindEnv(ev, names, args), body))
-          sh(expended)
+          // comment out for show expended macro
+          // sh(body)
+          // sh(expended)
           cdr(eval(ev, expended))
       }
       Cons(newEnv, ret)
@@ -296,23 +297,22 @@ object Sisp {
     import Helpers._ // for implicit conversion
 
     // "((1 . 2) 3 . 4)"
-    type A = Atom
-    def program: Parser[List[A]] = rep(expr)
-    def expr: Parser[A] = "nil" ^^^ nil | quote | cons | impCons | factor
-    def quote: Parser[A] = ("`" | "'") ~> expr ^^ {
+    def program: Parser[List[Atom]] = rep(expr)
+    def expr: Parser[Atom] = "nil" ^^^ nil | quote | cons | impCons | factor
+    def quote: Parser[Atom] = ("`" | "'") ~> expr ^^ {
       case p => Cons('quote, Cons(p, nil))
     }
-    def cons: Parser[A] = "(" ~> rep(factor | expr) <~ ")" ^^ (_.toCons)
-    def impCons: Parser[A] = ("(" ~> rep(expr)) ~ "." ~ (expr <~ ")") ^^ {
+    def cons: Parser[Atom] = "(" ~> rep(factor | expr) <~ ")" ^^ (_.toCons)
+    def impCons: Parser[Atom] = ("(" ~> rep(expr)) ~ "." ~ (expr <~ ")") ^^ {
       case a ~ _ ~ c => a.toImproperCons(c)
     }
-    def factor: Parser[A] = number | symbol
-    def symbol: Parser[A] = "[!@#$%^&_=\\*\\-\\+\\?a-zA-Z]+[0-9]*".r ^^ { case s => Sym(s) }
-    def number: Parser[A] = wholeNumber ^^ (_.toInt)
+    def factor: Parser[Atom] = number | symbol
+    def symbol: Parser[Atom] = "[!@#$%^&_=\\*\\-\\+\\?a-zA-Z]+[0-9]*".r ^^ { case s => Sym(s) }
+    def number: Parser[Atom] = wholeNumber ^^ (_.toInt)
   }
 
   object Parser extends LispParser {
-    def parse(input: String): List[A] = parseAll(program, input) match {
+    def parse(input: String): List[Atom] = parseAll(program, input) match {
       case Success(result, _) => result
       case failure : NoSuccess => scala.sys.error(failure.msg)
     }
