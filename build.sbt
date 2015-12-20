@@ -2,9 +2,9 @@ name := "sisp"
 
 version := "0.1"
 
-sbtVersion := "0.13.8"
+sbtVersion := "0.13.9"
 
-scalaVersion := "2.11.6"
+scalaVersion := "2.11.7"
 
 scalacOptions ++= Seq(
   "-feature",

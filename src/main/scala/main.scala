@@ -231,7 +231,7 @@ object Sisp {
   object Helpers {
     implicit def toInteger(n: Int): Integer = Integer(n)
     implicit def toSym(s: Symbol): Sym = Sym(s)
-    implicit def toCons[T <% Atom](a: Tuple2[T, T]): Cons = Cons(a._1, a._2)
+    implicit def toCons[T <% Atom](a: (T, T)): Cons = Cons(a._1, a._2)
 
     def l(args: Atom*): Atom = // helper function for test
       if (args.isEmpty || args.head == nil) nil
@@ -292,7 +292,7 @@ object Sisp {
     }
   }
 
-  class LispParser extends JavaTokenParsers  {
+  class LispParser extends JavaTokenParsers {
     import Helpers._ // for implicit conversion
 
     // "((1 . 2) 3 . 4)"
@@ -320,14 +320,14 @@ object Sisp {
 }
 
 object Main extends App {
-  import jline.console.ConsoleReader;
+  import jline.console.ConsoleReader
   import jline.console.completer._
   import Sisp._
   import Environment._
   import Helpers._
 
-  val reader: ConsoleReader = new ConsoleReader();
-  reader.setPrompt("sisp> ");
+  val reader: ConsoleReader = new ConsoleReader()
+  reader.setPrompt("sisp> ")
 
   def repl(env: Atom): Unit = {
     try {
