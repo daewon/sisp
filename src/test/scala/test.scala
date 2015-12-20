@@ -14,27 +14,6 @@ import com.daewon.sisp.Sisp._
 import Environment._
 import Helpers._
 
-class ScalaTest extends FunSuite {
-  test("scalaTest") {
-    trait CanDouble[A] {
-      def double(a: A): A
-    }
-
-    implicit def stringDouble: CanDouble[String] = new CanDouble[String] {
-      def double(a: String) = a + a
-    }
-
-    implicit def numericDouble[A: Numeric]: CanDouble[A] = new CanDouble[A] {
-      def double(a: A) = implicitly[Numeric[A]].plus(a, a)
-    }
-
-    def double[A: CanDouble](a: A) = implicitly[CanDouble[A]].double(a)
-
-    println(double("aa"))
-    println(double(10))
-  }
-}
-
 class MacroTest extends FunSuite {
   test("macro") {
     var env = createEnv()
