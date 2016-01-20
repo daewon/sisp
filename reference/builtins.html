@@ -1,0 +1,553 @@
+<html>
+<head>
+
+
+<script type="text/javascript" src="/static/js/analytics.js"></script>
+<script type="text/javascript">archive_analytics.values.server_name="wwwb-app36.us.archive.org";archive_analytics.values.server_ms=400;</script>
+<link type="text/css" rel="stylesheet" href="/static/css/banner-styles.css"/>
+
+
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="style.css" />
+<title>Chapter 5: Built-in functions</title>
+</head>
+<body>
+
+
+<!-- BEGIN WAYBACK TOOLBAR INSERT -->
+<script type="text/javascript" src="/static/js/disclaim-element.js" ></script>
+<script type="text/javascript" src="/static/js/graph-calc.js" ></script>
+<script type="text/javascript">//<![CDATA[
+var __wm = (function(imgWidth,imgHeight,yearImgWidth,monthImgWidth){
+var wbPrefix = "/web/";
+var wbCurrentUrl = "http://www.lwh.jp/lisp/builtins.html";
+
+var firstYear = 1996;
+var displayDay = "9";
+var displayMonth = "Dec";
+var displayYear = "2014";
+var prettyMonths = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+var $D=document,$=function(n){return document.getElementById(n)};
+var trackerVal,curYear = -1,curMonth = -1;
+var yearTracker,monthTracker;
+function showTrackers(val) {
+  if (val===trackerVal) return;
+  var $ipp=$("wm-ipp");
+  var $y=$("displayYearEl"),$m=$("displayMonthEl"),$d=$("displayDayEl");
+  if (val) {
+    $ipp.className="hi";
+  } else {
+    $ipp.className="";
+    $y.innerHTML=displayYear;$m.innerHTML=displayMonth;$d.innerHTML=displayDay;
+  }
+  yearTracker.style.display=val?"inline":"none";
+  monthTracker.style.display=val?"inline":"none";
+  trackerVal = val;
+}
+function trackMouseMove(event,element) {
+  var eventX = getEventX(event);
+  var elementX = getElementX(element);
+  var xOff = Math.min(Math.max(0, eventX - elementX),imgWidth);
+  var monthOff = xOff % yearImgWidth;
+
+  var year = Math.floor(xOff / yearImgWidth);
+  var monthOfYear = Math.min(11,Math.floor(monthOff / monthImgWidth));
+  // 1 extra border pixel at the left edge of the year:
+  var month = (year * 12) + monthOfYear;
+  var day = monthOff % 2==1?15:1;
+  var dateString = zeroPad(year + firstYear) + zeroPad(monthOfYear+1,2) +
+    zeroPad(day,2) + "000000";
+
+  $("displayYearEl").innerHTML=year+firstYear;
+  $("displayMonthEl").innerHTML=prettyMonths[monthOfYear];
+  // looks too jarring when it changes..
+  //$("displayDayEl").innerHTML=zeroPad(day,2);
+  var url = wbPrefix + dateString + '/' +  wbCurrentUrl;
+  $("wm-graph-anchor").href=url;
+
+  if(curYear != year) {
+    var yrOff = year * yearImgWidth;
+    yearTracker.style.left = yrOff + "px";
+    curYear = year;
+  }
+  if(curMonth != month) {
+    var mtOff = year + (month * monthImgWidth) + 1;
+    monthTracker.style.left = mtOff + "px";
+    curMonth = month;
+  }
+}
+function hideToolbar() {
+  $("wm-ipp").style.display="none";
+}
+function bootstrap() {
+  var $spk=$("wm-ipp-sparkline");
+  yearTracker=$D.createElement('div');
+  yearTracker.className='yt';
+  with(yearTracker.style){
+    display='none';width=yearImgWidth+"px";height=imgHeight+"px";
+  }
+  monthTracker=$D.createElement('div');
+  monthTracker.className='mt';
+  with(monthTracker.style){
+    display='none';width=monthImgWidth+"px";height=imgHeight+"px";
+  }
+  $spk.appendChild(yearTracker);
+  $spk.appendChild(monthTracker);
+
+  var $ipp=$("wm-ipp");
+  $ipp&&disclaimElement($ipp);
+}
+return{st:showTrackers,mv:trackMouseMove,h:hideToolbar,bt:bootstrap};
+})(525, 27, 25, 2);//]]>
+</script>
+<style type="text/css">
+body {
+  margin-top:0 !important;
+  padding-top:0 !important;
+  min-width:800px !important;
+}
+</style>
+<div id="wm-ipp" lang="en" style="display:none;">
+
+<div style="position:fixed;left:0;top:0;width:100%!important">
+<div id="wm-ipp-inside">
+   <table style="width:100%;"><tbody><tr>
+   <td id="wm-logo">
+       <a href="/web/" title="Wayback Machine home page"><img src="/static/images/toolbar/wayback-toolbar-logo.png" alt="Wayback Machine" width="110" height="39" border="0" /></a>
+   </td>
+   <td class="c">
+       <table style="margin:0 auto;"><tbody><tr>
+       <td class="u" colspan="2">
+       <form target="_top" method="get" action="/web/form-submit.jsp" name="wmtb" id="wmtb"><input type="text" name="url" id="wmtbURL" value="http://www.lwh.jp/lisp/builtins.html" style="width:400px;" onfocus="this.focus();this.select();" /><input type="hidden" name="type" value="replay" /><input type="hidden" name="date" value="20141209132124" /><input type="submit" value="Go" /><span id="wm_tb_options" style="display:block;"></span></form>
+       </td>
+       <td class="n" rowspan="2">
+           <table><tbody>
+           <!-- NEXT/PREV MONTH NAV AND MONTH INDICATOR -->
+           <tr class="m">
+           	<td class="b" nowrap="nowrap">
+		
+		    <a href="/web/20141012145504/http://www.lwh.jp/lisp/builtins.html" title="12 Oct 2014">OCT</a>
+		
+		</td>
+		<td class="c" id="displayMonthEl" title="You are here: 13:21:24 Dec 9, 2014">DEC</td>
+		<td class="f" nowrap="nowrap">
+		
+		    Jan
+		
+                </td>
+	    </tr>
+           <!-- NEXT/PREV CAPTURE NAV AND DAY OF MONTH INDICATOR -->
+           <tr class="d">
+               <td class="b" nowrap="nowrap">
+               
+                   <a href="/web/20141012145504/http://www.lwh.jp/lisp/builtins.html" title="14:55:04 Oct 12, 2014"><img src="/static/images/toolbar/wm_tb_prv_on.png" alt="Previous capture" width="14" height="16" border="0" /></a>
+               
+               </td>
+               <td class="c" id="displayDayEl" style="width:34px;font-size:24px;" title="You are here: 13:21:24 Dec 9, 2014">9</td>
+	       <td class="f" nowrap="nowrap">
+               
+                   <img src="/static/images/toolbar/wm_tb_nxt_off.png" alt="Next capture" width="14" height="16" border="0"/>
+               
+	       </td>
+           </tr>
+           <!-- NEXT/PREV YEAR NAV AND YEAR INDICATOR -->
+           <tr class="y">
+	       <td class="b" nowrap="nowrap">
+               
+                   <a href="/web/20130527195845/http://www.lwh.jp/lisp/builtins.html" title="27 May 2013"><strong>2013</strong></a>
+               
+               </td>
+               <td class="c" id="displayYearEl" title="You are here: 13:21:24 Dec 9, 2014">2014</td>
+	       <td class="f" nowrap="nowrap">
+               
+                   2015
+               
+	       </td>
+           </tr>
+           </tbody></table>
+       </td>
+       </tr>
+       <tr>
+       <td class="s">
+           <a class="t" href="/web/20141209132124*/http://www.lwh.jp/lisp/builtins.html" title="See a list of every capture for this URL">3 captures</a>
+           <div class="r" title="Timespan for captures of this URL">27 May 13 - 9 Dec 14</div>
+       </td>
+       <td class="k">
+       <a href="" id="wm-graph-anchor">
+       <div id="wm-ipp-sparkline" title="Explore captures for this URL">
+	 <img id="sparklineImgId" alt="sparklines"
+		 onmouseover="__wm.st(1)" onmouseout="__wm.st(0)"
+		 onmousemove="__wm.mv(event,this)"
+		 width="525"
+		 height="27"
+		 border="0"
+		 src="/web/jsp/graph.jsp?graphdata=525_27_1996:-1:000000000000_1997:-1:000000000000_1998:-1:000000000000_1999:-1:000000000000_2000:-1:000000000000_2001:-1:000000000000_2002:-1:000000000000_2003:-1:000000000000_2004:-1:000000000000_2005:-1:000000000000_2006:-1:000000000000_2007:-1:000000000000_2008:-1:000000000000_2009:-1:000000000000_2010:-1:000000000000_2011:-1:000000000000_2012:-1:000000000000_2013:-1:000010000000_2014:11:000000000101_2015:-1:000000000000_2016:-1:000000000000" />
+       </div>
+       </a>
+       </td>
+       </tr></tbody></table>
+   </td>
+   <td class="r">
+       <a href="#close" onclick="__wm.h();return false;" style="background-image:url(/static/images/toolbar/wm_tb_close.png);top:5px;" title="Close the toolbar">Close</a>
+       <a href="http://faq.web.archive.org/" style="background-image:url(/static/images/toolbar/wm_tb_help.png);bottom:5px;" title="Get some help using the Wayback Machine">Help</a>
+   </td>
+   </tr></tbody></table>
+</div>
+</div>
+</div>
+<script type="text/javascript">__wm.bt();</script>
+<!-- END WAYBACK TOOLBAR INSERT -->
+
+
+<h1>Built-in functions</h1>
+
+<p>
+So far in our implementation, we have made use of the functions
+<code>car</code>, <code>cdr</code> and <code>cons</code> to construct
+and access LISP data. Now, we will make the same functionality
+available within the interpreted environment.
+</p>
+
+<p>
+We shall extend the list expression syntax to add some new operators:
+<dl>
+  <dt><code>(CAR EXPR)</code>
+  <dd>Evaluates <code>EXPR</code> and returns the <i>car</i> of the
+    result. It is an error if <code>EXPR</code> does not evaluate to a
+    pair or <code>NIL</code>.</dd>
+  <dt><code>(CDR EXPR)</code>
+  <dd>Evaluates <code>EXPR</code> and returns the <i>cdr</i> of the
+    result. It is an error if <code>EXPR</code> does not evaluate to a
+    pair or <code>NIL</code>.</dd>
+  <dt><code>(CONS A B)</code>
+  <dd>Evaluates both arguments <code>A</code> and <code>B</code>,
+    and returns a newly constructed pair containing the results.</dd>
+</dl>
+</p>
+
+<p>
+In the definitions above we allow taking the <i>car</i> and <i>cdr</i> of
+<code>NIL</code>, unlike our C versions. Some algorithms are simpler to
+express if the <i>car</i> and <i>cdr</i> of <code>NIL</code> are defined
+to be <code>NIL</code>.
+</p>
+
+<p>
+We could choose to implement these by adding more special cases
+to <code>eval_expr</code>, just like we did with <code>QUOTE</code>
+and <code>DEFINE</code>. However, we will want to add more operators
+in the future &mdash; and adding each one to <code>eval_expr</code>
+would cause the function to get very long. The alternative is to introduce
+the concept of <i>functions</i>.
+</p>
+
+<h3>Functions</h3>
+
+<p>
+A function is a recipe for converting arguments into a value. If
+<code>eval_expr</code> encounters a list expression with a function
+as the operator, all it has to do is follow the recipe to come up with
+a value to use as the result of the expression.
+</p>
+
+<p>
+One way to implement these recipes is to create C functions which can
+be called from <code>eval_expr</code>. We will call these <i>built-in</i>
+or <i>primitive</i> functions. Let's see how to extend our LISP
+interpreter to accommodate these.
+</p>
+
+<h2>A new type of atom</h2>
+
+<p>
+<code>eval_expr</code> will call built-in functions through a C function
+pointer, so they must all have the same prototype:
+<pre class="c">
+typedef int (*Builtin)(struct Atom args, struct Atom *result);
+</pre>
+</p>
+
+<p>
+In order to appear in expressions, we need a new kind of atom to
+represent them.
+<pre class="c">
+struct Atom {
+	enum {
+		.
+		.
+		.
+		AtomType_Builtin
+	} type;
+
+	union {
+		.
+		.
+		.
+		Builtin builtin;
+	} value;
+};
+</pre>
+Sections of code which we wrote previously are abbreviated as
+"<code>. . .</code>".
+</p>
+
+<p>
+For completeness, <code>print_expr</code> needs to know how to display
+the new atom:
+<pre class="c">
+void print_expr(Atom atom)
+{
+	switch (atom.type) {
+	.
+	.
+	.
+	case AtomType_Builtin:
+		printf("#&lt;BUILTIN:%p&gt;", atom.value.builtin);
+		break;
+	}
+}
+</pre>
+</p>
+
+<p>
+And finally a helper function to create atoms of the new type:
+<pre class="c">
+Atom make_builtin(Builtin fn)
+{
+	Atom a;
+	a.type = AtomType_Builtin;
+	a.value.builtin = fn;
+	return a;
+}
+</pre>
+</p>
+
+<h2>Extending the evaluator</h2>
+
+<p>
+We will need to create a <i>shallow copy</i> of the argument
+list.
+</p>
+
+<pre class="c">
+Atom copy_list(Atom list)
+{
+	Atom a, p;
+
+	if (nilp(list))
+		return nil;
+
+	a = cons(car(list), nil);
+	p = a;
+	list = cdr(list);
+
+	while (!nilp(list)) {
+		cdr(p) = cons(car(list), nil);
+		p = cdr(p);
+		list = cdr(list);
+	}
+
+	return a;
+}
+</pre>
+
+<p>
+<code>apply</code> simply calls the builtin function with a supplied
+list of arguments. We will extend this function later when we
+want to deal with other kinds of evaluation recipe.
+</p>
+
+<pre class="c">
+int apply(Atom fn, Atom args, Atom *result)
+{
+	if (fn.type == AtomType_Builtin)
+		return (*fn.value.builtin)(args, result);
+
+	return Error_Type;
+}
+</pre>
+
+<p>
+If a list expression is not one of the special forms we defined
+previously, then we will assume that the operator is something which
+evaluates to a function. We will also evaluate each of the arguments,
+and use <code>apply</code> to call that function with the list of
+results.
+</p>
+
+<pre class="c">
+int eval_expr(Atom expr, Atom env, Atom *result)
+{
+	Atom op, args, p;
+	Error err;
+
+	.
+	.
+	.
+
+	if (op.type == AtomType_Symbol) {
+		.
+		.
+		.
+	}
+
+	/* Evaluate operator */
+	err = eval_expr(op, env, &amp;op);
+	if (err)
+		return err;
+
+	/* Evaulate arguments */
+	args = copy_list(args);
+	p = args;
+	while (!nilp(p)) {
+		err = eval_expr(car(p), env, &amp;car(p));
+		if (err)
+			return err;
+
+		p = cdr(p);
+	}
+
+	return apply(op, args, result);
+}
+</pre>
+
+<p>
+The argument list is copied before being overwritten with the results of
+evaluating the arguments. We don't want to overwrite the original
+argument list in case we need to use the form again in the future.
+</p>
+
+<h2>Initial environment</h2>
+
+<p>
+Previously we created an empty environment for the read-eval-print loop.
+The user has no way of creating atoms which represent builtin functions,
+so we populate the initial environment with bindings for our builtins.
+</p>
+
+<p>
+The functions themselves:
+</p>
+
+<pre class="c">
+int builtin_car(Atom args, Atom *result)
+{
+	if (nilp(args) || !nilp(cdr(args)))
+		return Error_Args;
+
+	if (nilp(car(args)))
+		*result = nil;
+	else if (car(args).type != AtomType_Pair)
+		return Error_Type;
+	else
+		*result = car(car(args));
+
+	return Error_OK;
+}
+</pre>
+
+<p>
+Almost all of the function is code to deal with errors and type checking!
+Creating functions in this way is pretty tedious. 
+</p>
+
+<pre class="c">
+int builtin_cdr(Atom args, Atom *result)
+{
+	if (nilp(args) || !nilp(cdr(args)))
+		return Error_Args;
+
+	if (nilp(car(args)))
+		*result = nil;
+	else if (car(args).type != AtomType_Pair)
+		return Error_Type;
+	else
+		*result = cdr(car(args));
+
+	return Error_OK;
+}
+</pre>
+
+<p>
+<code>builtin_cdr</code> is almost identical to <code>builtin_car</code>.
+</p>
+
+<pre class="c">
+int builtin_cons(Atom args, Atom *result)
+{
+	if (nilp(args) || nilp(cdr(args)) || !nilp(cdr(cdr(args))))
+		return Error_Args;
+
+	*result = cons(car(args), car(cdr(args)));
+
+	return Error_OK;
+}
+</pre>
+
+<p>
+With these defined, we can at last use <code>env_set</code> to create
+the bindings.
+</p>
+
+<pre class="c">
+int main(int argc, char **argv)
+{
+	Atom env;
+	char *input;
+
+	env = env_create(nil);
+
+	/* Set up the initial environment */
+	env_set(env, make_sym("CAR"), make_builtin(builtin_car));
+	env_set(env, make_sym("CDR"), make_builtin(builtin_cdr));
+	env_set(env, make_sym("CONS"), make_builtin(builtin_cons));
+
+	while ((input = readline("&gt; ")) != NULL) {
+		.
+		.
+		.
+	}
+
+	return 0;
+}
+</pre>
+
+<h4>Testing</h4>
+
+<pre class="lisp">
+&gt; <b>(define foo 1)</b>
+FOO
+&gt; <b>(define bar 2)</b>
+BAR
+&gt; <b>(cons foo bar)</b>
+(1 . 2)
+&gt; <b>(define baz (quote (a b c)))</b>
+BAZ
+&gt; <b>(car baz)</b>
+A
+&gt; <b>(cdr baz)</b>
+(B C)
+</pre>
+
+<p>
+Notice that <code>(CONS FOO BAR)</code> is <em>not</em> the same as
+<code>(QUOTE (FOO . BAR))</code>. In the former expression, the arguments
+are evaluated and a new pair is created.
+</p>
+
+</body>
+</html>
+
+
+
+
+
+
+<!--
+     FILE ARCHIVED ON 13:21:24 Dec 9, 2014 AND RETRIEVED FROM THE
+     INTERNET ARCHIVE ON 16:31:34 Jan 20, 2016.
+     JAVASCRIPT APPENDED BY WAYBACK MACHINE, COPYRIGHT INTERNET ARCHIVE.
+
+     ALL OTHER CONTENT MAY ALSO BE PROTECTED BY COPYRIGHT (17 U.S.C.
+     SECTION 108(a)(3)).
+-->

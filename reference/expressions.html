@@ -1,0 +1,558 @@
+<html>
+<head>
+
+
+<script type="text/javascript" src="/static/js/analytics.js"></script>
+<script type="text/javascript">archive_analytics.values.server_name="wwwb-app18.us.archive.org";archive_analytics.values.server_ms=262;</script>
+<link type="text/css" rel="stylesheet" href="/static/css/banner-styles.css"/>
+
+
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="style.css" />
+<title>Chapter 4: Expressions</title>
+</head>
+<body>
+
+
+<!-- BEGIN WAYBACK TOOLBAR INSERT -->
+<script type="text/javascript" src="/static/js/disclaim-element.js" ></script>
+<script type="text/javascript" src="/static/js/graph-calc.js" ></script>
+<script type="text/javascript">//<![CDATA[
+var __wm = (function(imgWidth,imgHeight,yearImgWidth,monthImgWidth){
+var wbPrefix = "/web/";
+var wbCurrentUrl = "http://www.lwh.jp/lisp/expressions.html";
+
+var firstYear = 1996;
+var displayDay = "9";
+var displayMonth = "Dec";
+var displayYear = "2014";
+var prettyMonths = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+var $D=document,$=function(n){return document.getElementById(n)};
+var trackerVal,curYear = -1,curMonth = -1;
+var yearTracker,monthTracker;
+function showTrackers(val) {
+  if (val===trackerVal) return;
+  var $ipp=$("wm-ipp");
+  var $y=$("displayYearEl"),$m=$("displayMonthEl"),$d=$("displayDayEl");
+  if (val) {
+    $ipp.className="hi";
+  } else {
+    $ipp.className="";
+    $y.innerHTML=displayYear;$m.innerHTML=displayMonth;$d.innerHTML=displayDay;
+  }
+  yearTracker.style.display=val?"inline":"none";
+  monthTracker.style.display=val?"inline":"none";
+  trackerVal = val;
+}
+function trackMouseMove(event,element) {
+  var eventX = getEventX(event);
+  var elementX = getElementX(element);
+  var xOff = Math.min(Math.max(0, eventX - elementX),imgWidth);
+  var monthOff = xOff % yearImgWidth;
+
+  var year = Math.floor(xOff / yearImgWidth);
+  var monthOfYear = Math.min(11,Math.floor(monthOff / monthImgWidth));
+  // 1 extra border pixel at the left edge of the year:
+  var month = (year * 12) + monthOfYear;
+  var day = monthOff % 2==1?15:1;
+  var dateString = zeroPad(year + firstYear) + zeroPad(monthOfYear+1,2) +
+    zeroPad(day,2) + "000000";
+
+  $("displayYearEl").innerHTML=year+firstYear;
+  $("displayMonthEl").innerHTML=prettyMonths[monthOfYear];
+  // looks too jarring when it changes..
+  //$("displayDayEl").innerHTML=zeroPad(day,2);
+  var url = wbPrefix + dateString + '/' +  wbCurrentUrl;
+  $("wm-graph-anchor").href=url;
+
+  if(curYear != year) {
+    var yrOff = year * yearImgWidth;
+    yearTracker.style.left = yrOff + "px";
+    curYear = year;
+  }
+  if(curMonth != month) {
+    var mtOff = year + (month * monthImgWidth) + 1;
+    monthTracker.style.left = mtOff + "px";
+    curMonth = month;
+  }
+}
+function hideToolbar() {
+  $("wm-ipp").style.display="none";
+}
+function bootstrap() {
+  var $spk=$("wm-ipp-sparkline");
+  yearTracker=$D.createElement('div');
+  yearTracker.className='yt';
+  with(yearTracker.style){
+    display='none';width=yearImgWidth+"px";height=imgHeight+"px";
+  }
+  monthTracker=$D.createElement('div');
+  monthTracker.className='mt';
+  with(monthTracker.style){
+    display='none';width=monthImgWidth+"px";height=imgHeight+"px";
+  }
+  $spk.appendChild(yearTracker);
+  $spk.appendChild(monthTracker);
+
+  var $ipp=$("wm-ipp");
+  $ipp&&disclaimElement($ipp);
+}
+return{st:showTrackers,mv:trackMouseMove,h:hideToolbar,bt:bootstrap};
+})(525, 27, 25, 2);//]]>
+</script>
+<style type="text/css">
+body {
+  margin-top:0 !important;
+  padding-top:0 !important;
+  min-width:800px !important;
+}
+</style>
+<div id="wm-ipp" lang="en" style="display:none;">
+
+<div style="position:fixed;left:0;top:0;width:100%!important">
+<div id="wm-ipp-inside">
+   <table style="width:100%;"><tbody><tr>
+   <td id="wm-logo">
+       <a href="/web/" title="Wayback Machine home page"><img src="/static/images/toolbar/wayback-toolbar-logo.png" alt="Wayback Machine" width="110" height="39" border="0" /></a>
+   </td>
+   <td class="c">
+       <table style="margin:0 auto;"><tbody><tr>
+       <td class="u" colspan="2">
+       <form target="_top" method="get" action="/web/form-submit.jsp" name="wmtb" id="wmtb"><input type="text" name="url" id="wmtbURL" value="http://www.lwh.jp/lisp/expressions.html" style="width:400px;" onfocus="this.focus();this.select();" /><input type="hidden" name="type" value="replay" /><input type="hidden" name="date" value="20141209132134" /><input type="submit" value="Go" /><span id="wm_tb_options" style="display:block;"></span></form>
+       </td>
+       <td class="n" rowspan="2">
+           <table><tbody>
+           <!-- NEXT/PREV MONTH NAV AND MONTH INDICATOR -->
+           <tr class="m">
+           	<td class="b" nowrap="nowrap">
+		
+		    <a href="/web/20141012145203/http://www.lwh.jp/lisp/expressions.html" title="12 Oct 2014">OCT</a>
+		
+		</td>
+		<td class="c" id="displayMonthEl" title="You are here: 13:21:34 Dec 9, 2014">DEC</td>
+		<td class="f" nowrap="nowrap">
+		
+		    Jan
+		
+                </td>
+	    </tr>
+           <!-- NEXT/PREV CAPTURE NAV AND DAY OF MONTH INDICATOR -->
+           <tr class="d">
+               <td class="b" nowrap="nowrap">
+               
+                   <a href="/web/20141012145203/http://www.lwh.jp/lisp/expressions.html" title="14:52:03 Oct 12, 2014"><img src="/static/images/toolbar/wm_tb_prv_on.png" alt="Previous capture" width="14" height="16" border="0" /></a>
+               
+               </td>
+               <td class="c" id="displayDayEl" style="width:34px;font-size:24px;" title="You are here: 13:21:34 Dec 9, 2014">9</td>
+	       <td class="f" nowrap="nowrap">
+               
+                   <img src="/static/images/toolbar/wm_tb_nxt_off.png" alt="Next capture" width="14" height="16" border="0"/>
+               
+	       </td>
+           </tr>
+           <!-- NEXT/PREV YEAR NAV AND YEAR INDICATOR -->
+           <tr class="y">
+	       <td class="b" nowrap="nowrap">
+               
+                   <a href="/web/20130527195845/http://www.lwh.jp/lisp/expressions.html" title="27 May 2013"><strong>2013</strong></a>
+               
+               </td>
+               <td class="c" id="displayYearEl" title="You are here: 13:21:34 Dec 9, 2014">2014</td>
+	       <td class="f" nowrap="nowrap">
+               
+                   2015
+               
+	       </td>
+           </tr>
+           </tbody></table>
+       </td>
+       </tr>
+       <tr>
+       <td class="s">
+           <a class="t" href="/web/20141209132134*/http://www.lwh.jp/lisp/expressions.html" title="See a list of every capture for this URL">3 captures</a>
+           <div class="r" title="Timespan for captures of this URL">27 May 13 - 9 Dec 14</div>
+       </td>
+       <td class="k">
+       <a href="" id="wm-graph-anchor">
+       <div id="wm-ipp-sparkline" title="Explore captures for this URL">
+	 <img id="sparklineImgId" alt="sparklines"
+		 onmouseover="__wm.st(1)" onmouseout="__wm.st(0)"
+		 onmousemove="__wm.mv(event,this)"
+		 width="525"
+		 height="27"
+		 border="0"
+		 src="/web/jsp/graph.jsp?graphdata=525_27_1996:-1:000000000000_1997:-1:000000000000_1998:-1:000000000000_1999:-1:000000000000_2000:-1:000000000000_2001:-1:000000000000_2002:-1:000000000000_2003:-1:000000000000_2004:-1:000000000000_2005:-1:000000000000_2006:-1:000000000000_2007:-1:000000000000_2008:-1:000000000000_2009:-1:000000000000_2010:-1:000000000000_2011:-1:000000000000_2012:-1:000000000000_2013:-1:000010000000_2014:11:000000000101_2015:-1:000000000000_2016:-1:000000000000" />
+       </div>
+       </a>
+       </td>
+       </tr></tbody></table>
+   </td>
+   <td class="r">
+       <a href="#close" onclick="__wm.h();return false;" style="background-image:url(/static/images/toolbar/wm_tb_close.png);top:5px;" title="Close the toolbar">Close</a>
+       <a href="http://faq.web.archive.org/" style="background-image:url(/static/images/toolbar/wm_tb_help.png);bottom:5px;" title="Get some help using the Wayback Machine">Help</a>
+   </td>
+   </tr></tbody></table>
+</div>
+</div>
+</div>
+<script type="text/javascript">__wm.bt();</script>
+<!-- END WAYBACK TOOLBAR INSERT -->
+
+
+<h1>Expressions, Environment and Evaluation</h1>
+
+<h2>Expressions</h2>
+
+<p>
+LISP is all about <i>expressions</i>. An expression can be a
+<i>literal</i>, an <i>identifier</i>, or a list consisting of an
+<i>operator</i> and one or more <i>arguments</i>.
+</p>
+
+<p>
+A literal is an object with an intrinsic value. In our system, that's
+either an integer or <code>NIL</code> (if you consider "nothing" to be
+a value).
+</p>
+
+<p>
+An identifier is a <em>name</em> for an object. Symbols can be
+identifiers.
+</p>
+
+<p>
+Everything else is a list of the form <code>(operator argument...)</code>
+where <code>argument...</code> means zero or more arguments.
+</p>
+
+<h2>Environment</h2>
+
+<p>
+To associate identifiers with objects we need an <i>environment</i>.
+This is a collection of <i>bindings</i>, each of which consists of an
+identifier and its corresponding value. For example:
+<table border="1">
+ <tr><th colspan="2">Bindings</th></tr>
+ <tr><th>Identifier</th><th>Value</th></tr>
+ <tr><td><code>FOO</code></td><td><code>42</code></td></tr>
+ <tr><td><code>BAR</code></td><td><code>NIL</code></td></tr>
+ <tr><td><code>BAZ</code></td><td><code>(X Y Z)</code></td></tr>
+</table>
+Note that the identifiers are all symbols, but the values can be any
+object within our system of data &mdash; the value for <code>BAZ</code>
+is a list containing three symbols.
+</p>
+
+<p>
+An environment can also have a <i>parent environment</i>. If there is
+no binding for a particular identifier in the environment, we can check
+the parent, the parent's parent and so on. In this way we can create a
+tree of environments which share bindings with their ancestors unless
+explicit replacements exist.
+</p>
+
+<h4>Implementation</h4>
+
+<p>
+There is a convenient way of representing environments using our LISP
+data types:
+<pre class="lisp">
+(<i>parent</i> (<i>identifier</i> . <i>value</i>)<i>...</i>)
+</pre>
+So the environment above (assuming it has no parent) is:
+<pre class="lisp">
+(NIL (FOO . 42) (BAR . NIL) (BAZ . (X Y Z)))
+</pre>
+</p>
+
+<p>
+Here is a function to create an empty environment with a specified
+parent (which could be <code>NIL</code>):
+<pre class="c">
+Atom env_create(Atom parent)
+{
+	return cons(parent, nil);
+}
+</pre>
+</p>
+
+<p>
+Next we have two functions to retrieve and create bindings in an
+environment.
+</p>
+
+<p>
+<pre class="c">
+int env_get(Atom env, Atom symbol, Atom *result)
+{
+	Atom parent = car(env);
+	Atom bs = cdr(env);
+
+	while (!nilp(bs)) {
+		Atom b = car(bs);
+		if (car(b).value.symbol == symbol.value.symbol) {
+			*result = cdr(b);
+			return Error_OK;
+		}
+		bs = cdr(bs);
+	}
+
+	if (nilp(parent))
+		return Error_Unbound;
+
+	return env_get(parent, symbol, result);
+}
+</pre>
+Disallowing duplicate symbols means that we don't have to call
+<code>strcmp</code> here, which should mean that this lookup function
+is not too slow.
+</p>
+
+<pre class="c">
+int env_set(Atom env, Atom symbol, Atom value)
+{
+	Atom bs = cdr(env);
+	Atom b = nil;
+
+	while (!nilp(bs)) {
+		b = car(bs);
+		if (car(b).value.symbol == symbol.value.symbol) {
+			cdr(b) = value;
+			return Error_OK;
+		}
+		bs = cdr(bs);
+	}
+
+	b = cons(symbol, value);
+	cdr(env) = cons(b, cdr(env));
+
+	return Error_OK;
+}
+</pre>
+
+<p>
+Only <code>env_get</code> recursively checks the parent environments.
+We don't want to modify the bindings of parents.
+</p>
+
+<h2>Evaluation</h2>
+
+<p>
+Now that we have expressions, we can start to <i>evaluate</i> them.
+Evalution is a process which takes an expression and an environment, and
+produces a value (the <i>result</i>). Let's specify the rules.
+</p>
+
+<ul>
+<li>
+A literal will evaluate to itself.
+</li>
+
+<li>
+The environment allows us to determine a value for an identifier.
+Attempting to evaluate an identifier for which no binding exists is an
+error.
+</li>
+
+<li>
+A list expression with one of the following operators is called a
+<i>special form</i>:
+  <dl>
+    <dt><code>QUOTE</code></dt>
+    <dd>The result of evaluating <code>(QUOTE EXPR)</code> is
+      <code>EXPR</code>, which is returned without evaluating.
+    <dt><code>DEFINE</code></dt>
+    <dd>Evaluating <code>(DEFINE SYMBOL EXPR)</code> creates a binding
+      for <code>SYMBOL</code> (or modifies an existing binding) in the
+      evaluation environment. <code>SYMBOL</code> is bound to the value
+      obtained by evaluating <code>EXPR</code>. The final result is
+      <code>SYMBOL</code>.
+    </dl>
+  </dl>
+</li>
+
+<li>
+Anything else, including list expressions with any other operator, is
+invalid.
+</li>
+</ul>
+
+<h4>Implementation</h4>
+
+<p>
+We will need to check whether an expression is a proper list.
+<pre class="c">
+int listp(Atom expr)
+{
+	while (!nilp(expr)) {
+		if (expr.type != AtomType_Pair)
+			return 0;
+		expr = cdr(expr);
+	}
+	return 1;
+}
+</pre>
+</p>
+
+<p>
+The <code>Error</code> enumeration needs a few more entires:
+<table border="1">
+  <tr>
+    <td><code>Error_Unbound</code></td>
+    <td>Attempted to evaluate a symbol for which no binding exists</td>
+  </tr>
+  <tr>
+    <td><code>Error_Args</code></td>
+    <td>A list expression was shorter or longer than expected</tr></td>
+  </tr>
+  <tr>
+    <td><code>Error_Type</code></td>
+    <td>An object in an expression was of a different type than expected</td>
+  </tr>
+</table>
+</p>
+
+<p>
+The function to perform evaluation is now a straightforward translation
+of the rules into C.
+</p>
+
+<pre class="c">
+int eval_expr(Atom expr, Atom env, Atom *result)
+{
+	Atom op, args;
+	Error err;
+
+	if (expr.type == AtomType_Symbol) {
+		return env_get(env, expr, result);
+	} else if (expr.type != AtomType_Pair) {
+		*result = expr;
+		return Error_OK;
+	}
+
+	if (!listp(expr))
+		return Error_Syntax;
+
+	op = car(expr);
+	args = cdr(expr);
+
+	if (op.type == AtomType_Symbol) {
+		if (strcmp(op.value.symbol, "QUOTE") == 0) {
+			if (nilp(args) || !nilp(cdr(args)))
+				return Error_Args;
+
+			*result = car(args);
+			return Error_OK;
+		} else if (strcmp(op.value.symbol, "DEFINE") == 0) {
+			Atom sym, val;
+
+			if (nilp(args) || nilp(cdr(args)) || !nilp(cdr(cdr(args))))
+				return Error_Args;
+
+			sym = car(args);
+			if (sym.type != AtomType_Symbol)
+				return Error_Type;
+
+			err = eval_expr(car(cdr(args)), env, &amp;val);
+			if (err)
+				return err;
+
+			*result = sym;
+			return env_set(env, sym, val);
+		}
+	}
+
+	return Error_Syntax;
+}
+</pre>
+
+<h4>Testing</h4>
+
+<p>
+Extending the read-print loop from the previous chapter, we now have a
+read-eval-print loop (REPL). This is the core of our LISP interpreter.
+</p>
+
+<pre class="c">
+int main(int argc, char **argv)
+{
+	Atom env;
+	char *input;
+
+	env = env_create(nil);
+
+	while ((input = readline("&gt; ")) != NULL) {
+		const char *p = input;
+		Error err;
+		Atom expr, result;
+
+		err = read_expr(p, &amp;p, &amp;expr);		
+
+		if (!err)
+			err = eval_expr(expr, env, &amp;result);
+
+		switch (err) {
+		case Error_OK:
+			print_expr(result);
+			putchar('\n');
+			break;
+		case Error_Syntax:
+			puts("Syntax error");
+			break;
+		case Error_Unbound:
+			puts("Symbol not bound");
+			break;
+		case Error_Args:
+			puts("Wrong number of arguments");
+			break;
+		case Error_Type:
+			puts("Wrong type");
+			break;
+		}
+
+		free(input);
+	}
+
+	return 0;
+}
+</pre>
+
+<p>
+Let's see what it can do.
+</p>
+
+<pre class="lisp">
+&gt; <b>foo</b>
+Symbol not bound
+&gt; <b>(quote foo)</b>
+FOO
+&gt; <b>(define foo 42)</b>
+FOO
+&gt; <b>foo</b>
+42
+&gt; <b>(define foo (quote bar))</b>
+FOO
+&gt; <b>foo</b>
+BAR
+</pre>
+
+<p>
+We can now interactively assign names to objects.
+</p>
+
+</body>
+</html>
+
+
+
+
+
+
+<!--
+     FILE ARCHIVED ON 13:21:34 Dec 9, 2014 AND RETRIEVED FROM THE
+     INTERNET ARCHIVE ON 16:29:00 Jan 20, 2016.
+     JAVASCRIPT APPENDED BY WAYBACK MACHINE, COPYRIGHT INTERNET ARCHIVE.
+
+     ALL OTHER CONTENT MAY ALSO BE PROTECTED BY COPYRIGHT (17 U.S.C.
+     SECTION 108(a)(3)).
+-->

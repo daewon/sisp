@@ -1,0 +1,735 @@
+<html>
+<head>
+
+
+<script type="text/javascript" src="/static/js/analytics.js"></script>
+<script type="text/javascript">archive_analytics.values.server_name="wwwb-app16.us.archive.org";archive_analytics.values.server_ms=192;</script>
+<link type="text/css" rel="stylesheet" href="/static/css/banner-styles.css"/>
+
+
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="style.css" />
+<title>Chapter 14: Continuations and tail recursion</title>
+</head>
+<body>
+
+
+<!-- BEGIN WAYBACK TOOLBAR INSERT -->
+<script type="text/javascript" src="/static/js/disclaim-element.js" ></script>
+<script type="text/javascript" src="/static/js/graph-calc.js" ></script>
+<script type="text/javascript">//<![CDATA[
+var __wm = (function(imgWidth,imgHeight,yearImgWidth,monthImgWidth){
+var wbPrefix = "/web/";
+var wbCurrentUrl = "http://www.lwh.jp/lisp/continuations.html";
+
+var firstYear = 1996;
+var displayDay = "9";
+var displayMonth = "Dec";
+var displayYear = "2014";
+var prettyMonths = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+var $D=document,$=function(n){return document.getElementById(n)};
+var trackerVal,curYear = -1,curMonth = -1;
+var yearTracker,monthTracker;
+function showTrackers(val) {
+  if (val===trackerVal) return;
+  var $ipp=$("wm-ipp");
+  var $y=$("displayYearEl"),$m=$("displayMonthEl"),$d=$("displayDayEl");
+  if (val) {
+    $ipp.className="hi";
+  } else {
+    $ipp.className="";
+    $y.innerHTML=displayYear;$m.innerHTML=displayMonth;$d.innerHTML=displayDay;
+  }
+  yearTracker.style.display=val?"inline":"none";
+  monthTracker.style.display=val?"inline":"none";
+  trackerVal = val;
+}
+function trackMouseMove(event,element) {
+  var eventX = getEventX(event);
+  var elementX = getElementX(element);
+  var xOff = Math.min(Math.max(0, eventX - elementX),imgWidth);
+  var monthOff = xOff % yearImgWidth;
+
+  var year = Math.floor(xOff / yearImgWidth);
+  var monthOfYear = Math.min(11,Math.floor(monthOff / monthImgWidth));
+  // 1 extra border pixel at the left edge of the year:
+  var month = (year * 12) + monthOfYear;
+  var day = monthOff % 2==1?15:1;
+  var dateString = zeroPad(year + firstYear) + zeroPad(monthOfYear+1,2) +
+    zeroPad(day,2) + "000000";
+
+  $("displayYearEl").innerHTML=year+firstYear;
+  $("displayMonthEl").innerHTML=prettyMonths[monthOfYear];
+  // looks too jarring when it changes..
+  //$("displayDayEl").innerHTML=zeroPad(day,2);
+  var url = wbPrefix + dateString + '/' +  wbCurrentUrl;
+  $("wm-graph-anchor").href=url;
+
+  if(curYear != year) {
+    var yrOff = year * yearImgWidth;
+    yearTracker.style.left = yrOff + "px";
+    curYear = year;
+  }
+  if(curMonth != month) {
+    var mtOff = year + (month * monthImgWidth) + 1;
+    monthTracker.style.left = mtOff + "px";
+    curMonth = month;
+  }
+}
+function hideToolbar() {
+  $("wm-ipp").style.display="none";
+}
+function bootstrap() {
+  var $spk=$("wm-ipp-sparkline");
+  yearTracker=$D.createElement('div');
+  yearTracker.className='yt';
+  with(yearTracker.style){
+    display='none';width=yearImgWidth+"px";height=imgHeight+"px";
+  }
+  monthTracker=$D.createElement('div');
+  monthTracker.className='mt';
+  with(monthTracker.style){
+    display='none';width=monthImgWidth+"px";height=imgHeight+"px";
+  }
+  $spk.appendChild(yearTracker);
+  $spk.appendChild(monthTracker);
+
+  var $ipp=$("wm-ipp");
+  $ipp&&disclaimElement($ipp);
+}
+return{st:showTrackers,mv:trackMouseMove,h:hideToolbar,bt:bootstrap};
+})(525, 27, 25, 2);//]]>
+</script>
+<style type="text/css">
+body {
+  margin-top:0 !important;
+  padding-top:0 !important;
+  min-width:800px !important;
+}
+</style>
+<div id="wm-ipp" lang="en" style="display:none;">
+
+<div style="position:fixed;left:0;top:0;width:100%!important">
+<div id="wm-ipp-inside">
+   <table style="width:100%;"><tbody><tr>
+   <td id="wm-logo">
+       <a href="/web/" title="Wayback Machine home page"><img src="/static/images/toolbar/wayback-toolbar-logo.png" alt="Wayback Machine" width="110" height="39" border="0" /></a>
+   </td>
+   <td class="c">
+       <table style="margin:0 auto;"><tbody><tr>
+       <td class="u" colspan="2">
+       <form target="_top" method="get" action="/web/form-submit.jsp" name="wmtb" id="wmtb"><input type="text" name="url" id="wmtbURL" value="http://www.lwh.jp/lisp/continuations.html" style="width:400px;" onfocus="this.focus();this.select();" /><input type="hidden" name="type" value="replay" /><input type="hidden" name="date" value="20141209132129" /><input type="submit" value="Go" /><span id="wm_tb_options" style="display:block;"></span></form>
+       </td>
+       <td class="n" rowspan="2">
+           <table><tbody>
+           <!-- NEXT/PREV MONTH NAV AND MONTH INDICATOR -->
+           <tr class="m">
+           	<td class="b" nowrap="nowrap">
+		
+		    <a href="/web/20141012145522/http://www.lwh.jp/lisp/continuations.html" title="12 Oct 2014">OCT</a>
+		
+		</td>
+		<td class="c" id="displayMonthEl" title="You are here: 13:21:29 Dec 9, 2014">DEC</td>
+		<td class="f" nowrap="nowrap">
+		
+		    Jan
+		
+                </td>
+	    </tr>
+           <!-- NEXT/PREV CAPTURE NAV AND DAY OF MONTH INDICATOR -->
+           <tr class="d">
+               <td class="b" nowrap="nowrap">
+               
+                   <a href="/web/20141012145522/http://www.lwh.jp/lisp/continuations.html" title="14:55:22 Oct 12, 2014"><img src="/static/images/toolbar/wm_tb_prv_on.png" alt="Previous capture" width="14" height="16" border="0" /></a>
+               
+               </td>
+               <td class="c" id="displayDayEl" style="width:34px;font-size:24px;" title="You are here: 13:21:29 Dec 9, 2014">9</td>
+	       <td class="f" nowrap="nowrap">
+               
+                   <img src="/static/images/toolbar/wm_tb_nxt_off.png" alt="Next capture" width="14" height="16" border="0"/>
+               
+	       </td>
+           </tr>
+           <!-- NEXT/PREV YEAR NAV AND YEAR INDICATOR -->
+           <tr class="y">
+	       <td class="b" nowrap="nowrap">
+               
+                   <a href="/web/20130527195850/http://www.lwh.jp/lisp/continuations.html" title="27 May 2013"><strong>2013</strong></a>
+               
+               </td>
+               <td class="c" id="displayYearEl" title="You are here: 13:21:29 Dec 9, 2014">2014</td>
+	       <td class="f" nowrap="nowrap">
+               
+                   2015
+               
+	       </td>
+           </tr>
+           </tbody></table>
+       </td>
+       </tr>
+       <tr>
+       <td class="s">
+           <a class="t" href="/web/20141209132129*/http://www.lwh.jp/lisp/continuations.html" title="See a list of every capture for this URL">3 captures</a>
+           <div class="r" title="Timespan for captures of this URL">27 May 13 - 9 Dec 14</div>
+       </td>
+       <td class="k">
+       <a href="" id="wm-graph-anchor">
+       <div id="wm-ipp-sparkline" title="Explore captures for this URL">
+	 <img id="sparklineImgId" alt="sparklines"
+		 onmouseover="__wm.st(1)" onmouseout="__wm.st(0)"
+		 onmousemove="__wm.mv(event,this)"
+		 width="525"
+		 height="27"
+		 border="0"
+		 src="/web/jsp/graph.jsp?graphdata=525_27_1996:-1:000000000000_1997:-1:000000000000_1998:-1:000000000000_1999:-1:000000000000_2000:-1:000000000000_2001:-1:000000000000_2002:-1:000000000000_2003:-1:000000000000_2004:-1:000000000000_2005:-1:000000000000_2006:-1:000000000000_2007:-1:000000000000_2008:-1:000000000000_2009:-1:000000000000_2010:-1:000000000000_2011:-1:000000000000_2012:-1:000000000000_2013:-1:000010000000_2014:11:000000000101_2015:-1:000000000000_2016:-1:000000000000" />
+       </div>
+       </a>
+       </td>
+       </tr></tbody></table>
+   </td>
+   <td class="r">
+       <a href="#close" onclick="__wm.h();return false;" style="background-image:url(/static/images/toolbar/wm_tb_close.png);top:5px;" title="Close the toolbar">Close</a>
+       <a href="http://faq.web.archive.org/" style="background-image:url(/static/images/toolbar/wm_tb_help.png);bottom:5px;" title="Get some help using the Wayback Machine">Help</a>
+   </td>
+   </tr></tbody></table>
+</div>
+</div>
+</div>
+<script type="text/javascript">__wm.bt();</script>
+<!-- END WAYBACK TOOLBAR INSERT -->
+
+
+<i>
+<strong>NOTE</strong> The implementation of <code>eval_expr</code>
+and the design of the stack in this chapter are rather ad-hoc, and
+I'm not particularly proud of them. Please skip to the next chapter
+if they offend you.
+</i>
+
+<h1>Continuations and tail recursion</h1>
+
+<p>
+Our <code>eval_expr</code> function has been implemented recursively
+&mdash; that is to say, when in the course of evaluating an expression
+it is necessary to evaluate a sub-expression, <code>eval_expr</code>
+calls itself to obtain the result.
+</p>
+
+<p>
+This works fairly well, and is easy to follow, but the depth of
+recursion in our LISP environment is limited by the stack size of the
+interpreter. LISP code traditionally makes heavy use of recursion,
+and we would like to support this up to the limit of available memory.
+</p>
+
+<p>
+Take the following pathological example:
+<pre class="lisp">
+(define (count n)
+  (if (= n 0)
+      0
+      (+ 1 (count (- n 1)))))
+</pre>
+</p>
+
+<p>
+The <code>COUNT</code> function will recurse to depth <code>n</code>
+and return the sum of <code>n</code> ones. Expressions such as
+<code>(COUNT 10)</code> should compute OK with our current interpreter,
+but even <code>(COUNT 10000)</code> is enough to cause a stack overflow
+on my machine.
+</p>
+
+<p>
+To achieve this we will rewrite <code>eval_expr</code> as a loop, with
+helper functions to keep track of evaluations in progress and return
+the next expression to be evaluated. When there are no more expressions
+left, <code>eval_expr</code> can return the final result to the caller.
+</p>
+
+<p>
+As <code>eval_expr</code> works through the tree of expressions, we will
+keep track of arguments evaluated and pending evaluation in a series of
+<code>frames</code>, linked together to form a <code>stack</code>. This
+is broadly the same way that the compiled version of the recursive
+<code>eval_expr</code> works; in this case we are replacing the machine
+code stack with a LISP data structure and manipulating it explicitly.
+</p>
+
+<p>
+The stack can also be thought of as representing the future of the
+computation once the present expression has been evaluated. In this
+sense it is referred to as the current <i>continuation</i>.
+</p>
+
+<p>
+Since any function which is called by <code>eval_expr</code> may not
+call <code>eval_expr</code> (to avoid recursion), we must integrate
+<code>apply</code> and <code>builtin_apply</code> into the body of
+<code>eval_expr</code>.
+</p>
+
+<h4>Implementation</h4>
+
+<p>
+A stack frame has the following form.
+</p>
+
+<pre class="lisp">
+(<i>parent env evaluated-op</i> (<i>pending-arg...</i>) (<i>evaluated-arg...</i>) (<i>body...</i>))
+</pre>
+
+<p>
+<code>parent</code> is the stack frame corresponding to the parent
+expression (that is, the one which is waiting for the result of the
+current expression). <code>env</code> is the current environment,
+<code>evaluated-op</code> is the evaluated operator, and
+<code>pending-arg...</code> and <code>evaluated-arg</code> are the
+arguments pending and following evaluation respectively.
+<code>body...</code> are the expressions in the function body
+which are pending execution.
+</p>
+
+<p>
+Rather than writing out long lists of <code>car()</code> and
+<code>cdr()</code>, we will define some helper functions to
+manipulate members of a list.
+</p>
+
+<pre class="c">
+Atom list_get(Atom list, int k)
+{
+	while (k--)
+		list = cdr(list);
+	return car(list);
+}
+
+void list_set(Atom list, int k, Atom value)
+{
+	while (k--)
+		list = cdr(list);
+	car(list) = value;
+}
+
+void list_reverse(Atom *list)
+{
+	Atom tail = nil;
+	while (!nilp(*list)) {
+		Atom p = cdr(*list);
+		cdr(*list) = tail;
+		tail = *list;
+		*list = p;
+	}
+	*list = tail;
+}
+</pre>
+
+<p>
+Another function creates a new stack frame ready to start evaluating a
+new function call, with the specified parent, environment and list of
+arguments pending evaluation (the <i>tail</i>).
+</p>
+
+<pre class="c">
+Atom make_frame(Atom parent, Atom env, Atom tail)
+{
+	return cons(parent,
+		cons(env,
+		cons(nil, /* op */
+		cons(tail,
+		cons(nil, /* args */
+		cons(nil, /* body */
+		nil))))));
+}
+</pre>
+
+<p>
+Here is the innermost part of our new <code>exec_expr</code>,
+which sets <code>expr</code> to the next part of the function
+body, and pops the stack when we have reached end of the body.
+</p>
+
+<pre class="c">
+int eval_do_exec(Atom *stack, Atom *expr, Atom *env)
+{
+	Atom body;
+
+	*env = list_get(*stack, 1);
+	body = list_get(*stack, 5);
+	*expr = car(body);
+	body = cdr(body);
+	if (nilp(body)) {
+		/* Finished function; pop the stack */
+		*stack = car(*stack);
+	} else {
+		list_set(*stack, 5, body);
+	}
+
+	return Error_OK;
+}
+</pre>
+
+<p>
+This helper binds the function arguments into a new environment
+if they have not already been bound, then calls
+<code>eval_do_exec</code> to get the next expression in the body.
+</p>
+
+<pre class="c">
+int eval_do_bind(Atom *stack, Atom *expr, Atom *env)
+{
+	Atom op, args, arg_names, body;
+
+	body = list_get(*stack, 5);
+	if (!nilp(body))
+		return eval_do_exec(stack, expr, env);
+
+	op = list_get(*stack, 2);
+	args = list_get(*stack, 4);
+
+	*env = env_create(car(op));
+	arg_names = car(cdr(op));
+	body = cdr(cdr(op));
+	list_set(*stack, 1, *env);
+	list_set(*stack, 5, body);
+
+	/* Bind the arguments */
+	while (!nilp(arg_names)) {
+		if (arg_names.type == AtomType_Symbol) {
+			env_set(*env, arg_names, args);
+			args = nil;
+			break;
+		}
+
+		if (nilp(args))
+			return Error_Args;
+		env_set(*env, car(arg_names), car(args));
+		arg_names = cdr(arg_names);
+		args = cdr(args);
+	}
+	if (!nilp(args))
+		return Error_Args;
+
+	list_set(*stack, 4, nil);
+
+	return eval_do_exec(stack, expr, env);
+}
+</pre>
+
+<p>
+The next function is called once all arguments have been evaluated,
+and is responsible either generating an expression to call a builtin,
+or delegating to <code>eval_do_bind</code>.
+</p>
+
+<pre class="c">
+int eval_do_apply(Atom *stack, Atom *expr, Atom *env, Atom *result)
+{
+	Atom op, args;
+
+	op = list_get(*stack, 2);
+	args = list_get(*stack, 4);
+
+	if (!nilp(args)) {
+		list_reverse(&amp;args);
+		list_set(*stack, 4, args);
+	}
+
+	if (op.type == AtomType_Symbol) {
+		if (strcmp(op.value.symbol, "APPLY") == 0) {
+			/* Replace the current frame */
+			*stack = car(*stack);
+			*stack = make_frame(*stack, *env, nil);
+			op = car(args);
+			args = car(cdr(args));
+			if (!listp(args))
+				return Error_Syntax;
+
+			list_set(*stack, 2, op);
+			list_set(*stack, 4, args);
+		}
+	}
+
+	if (op.type == AtomType_Builtin) {
+		*stack = car(*stack);
+		*expr = cons(op, args);
+		return Error_OK;
+	} else if (op.type != AtomType_Closure) {
+		return Error_Type;
+	}
+
+	return eval_do_bind(stack, expr, env);
+}
+</pre>
+
+<p>
+This part is called once an expression has been evaluated, and
+is responsible for storing the result, which is either an operator,
+an argument, or an intermediate body expression, and fetching the
+next expression to evaluate.
+</p>
+
+<pre class="c">
+int eval_do_return(Atom *stack, Atom *expr, Atom *env, Atom *result)
+{
+	Atom op, args, body;
+
+	*env = list_get(*stack, 1);
+	op = list_get(*stack, 2);
+	body = list_get(*stack, 5);
+
+	if (!nilp(body)) {
+		/* Still running a procedure; ignore the result */
+		return eval_do_apply(stack, expr, env, result);
+	}
+
+	if (nilp(op)) {
+		/* Finished evaluating operator */
+		op = *result;
+		list_set(*stack, 2, op);
+
+		if (op.type == AtomType_Macro) {
+			/* Don't evaluate macro arguments */
+			args = list_get(*stack, 3);
+			*stack = make_frame(*stack, *env, nil);
+			op.type = AtomType_Closure;
+			list_set(*stack, 2, op);
+			list_set(*stack, 4, args);
+			return eval_do_bind(stack, expr, env);
+		}
+	} else if (op.type == AtomType_Symbol) {
+		/* Finished working on special form */
+		if (strcmp(op.value.symbol, "DEFINE") == 0) {
+			Atom sym = list_get(*stack, 4);
+			(void) env_set(*env, sym, *result);
+			*stack = car(*stack);
+			*expr = cons(make_sym("QUOTE"), cons(sym, nil));
+			return Error_OK;
+		} else if (strcmp(op.value.symbol, "IF") == 0) {
+			args = list_get(*stack, 3);
+			*expr = nilp(*result) ? car(cdr(args)) : car(args);
+			*stack = car(*stack);
+			return Error_OK;
+		} else {
+			goto store_arg;
+		}
+	} else if (op.type == AtomType_Macro) {
+		/* Finished evaluating macro */
+		*expr = *result;
+		*stack = car(*stack);
+		return Error_OK;
+	} else {
+	store_arg:
+		/* Store evaluated argument */
+		args = list_get(*stack, 4);
+		list_set(*stack, 4, cons(*result, args));
+	}
+
+	args = list_get(*stack, 3);
+	if (nilp(args)) {
+		/* No more arguments left to evaluate */
+		return eval_do_apply(stack, expr, env, result);
+	}
+
+	/* Evaluate next argument */
+	*expr = car(args);
+	list_set(*stack, 3, cdr(args));
+	return Error_OK;
+}
+</pre>
+
+<p>
+And here we are at last with the new <code>eval_expr</code>. There
+is a lot of code for setting up special forms, but the rest is simply
+a loop waiting for the stack to clear.
+</p>
+
+<pre class="c">
+int eval_expr(Atom expr, Atom env, Atom *result)
+{
+	Error err = Error_OK;
+	Atom stack = nil;
+
+	do {
+		if (expr.type == AtomType_Symbol) {
+			err = env_get(env, expr, result);
+		} else if (expr.type != AtomType_Pair) {
+			*result = expr;
+		} else if (!listp(expr)) {
+			return Error_Syntax;
+		} else {
+			Atom op = car(expr);
+			Atom args = cdr(expr);
+
+			if (op.type == AtomType_Symbol) {
+				/* Handle special forms */
+
+				if (strcmp(op.value.symbol, "QUOTE") == 0) {
+					if (nilp(args) || !nilp(cdr(args)))
+						return Error_Args;
+
+					*result = car(args);
+				} else if (strcmp(op.value.symbol, "DEFINE") == 0) {
+					Atom sym;
+
+					if (nilp(args) || nilp(cdr(args)))
+						return Error_Args;
+
+					sym = car(args);
+					if (sym.type == AtomType_Pair) {
+						err = make_closure(env, cdr(sym), cdr(args), result);
+						sym = car(sym);
+						if (sym.type != AtomType_Symbol)
+							return Error_Type;
+						(void) env_set(env, sym, *result);
+						*result = sym;
+					} else if (sym.type == AtomType_Symbol) {
+						if (!nilp(cdr(cdr(args))))
+							return Error_Args;
+						stack = make_frame(stack, env, nil);
+						list_set(stack, 2, op);
+						list_set(stack, 4, sym);
+						expr = car(cdr(args));
+						continue;
+					} else {
+						return Error_Type;
+					}
+				} else if (strcmp(op.value.symbol, "LAMBDA") == 0) {
+					if (nilp(args) || nilp(cdr(args)))
+						return Error_Args;
+
+					err = make_closure(env, car(args), cdr(args), result);
+				} else if (strcmp(op.value.symbol, "IF") == 0) {
+					if (nilp(args) || nilp(cdr(args)) || nilp(cdr(cdr(args)))
+							|| !nilp(cdr(cdr(cdr(args)))))
+						return Error_Args;
+
+					stack = make_frame(stack, env, cdr(args));
+					list_set(stack, 2, op);
+					expr = car(args);
+					continue;
+				} else if (strcmp(op.value.symbol, "DEFMACRO") == 0) {
+					Atom name, macro;
+
+					if (nilp(args) || nilp(cdr(args)))
+						return Error_Args;
+
+					if (car(args).type != AtomType_Pair)
+						return Error_Syntax;
+
+					name = car(car(args));
+					if (name.type != AtomType_Symbol)
+						return Error_Type;
+
+					err = make_closure(env, cdr(car(args)),
+						cdr(args), &amp;macro);
+					if (!err) {
+						macro.type = AtomType_Macro;
+						*result = name;
+						(void) env_set(env, name, macro);
+					}
+				} else if (strcmp(op.value.symbol, "APPLY") == 0) {
+					if (nilp(args) || nilp(cdr(args)) || !nilp(cdr(cdr(args))))
+						return Error_Args;
+
+					stack = make_frame(stack, env, cdr(args));
+					list_set(stack, 2, op);
+					expr = car(args);
+					continue;
+				} else {
+					goto push;
+				}
+			} else if (op.type == AtomType_Builtin) {
+				err = (*op.value.builtin)(args, result);
+			} else {
+			push:
+				/* Handle function application */
+				stack = make_frame(stack, env, args);
+				expr = op;
+				continue;
+			}
+		}
+
+		if (nilp(stack))
+			break;
+
+		if (!err)
+			err = eval_do_return(&amp;stack, &amp;expr, &amp;env, result);
+	} while (!err);
+
+	return err;
+}
+</pre>
+
+<h4>Testing</h4>
+
+<p>
+Let's try our <code>COUNT</code> function again.
+</p>
+
+<pre class="lisp">
+&gt; <b>(count 100000)</b>
+100000
+</pre>
+
+<p>
+Hooray! We can now recurse as much as we like without causing a stack
+overflow. If you have a lot of RAM, you should even be able to do
+a million levels deep.
+</p>
+
+<h2>Tail recursion</h2>
+
+<p>
+If the last expression in a function is a call to another function, then
+the result can be returned directly to the first function's caller. This
+is known as a <i>tail call</i>. If the called function, through a series
+of tail calls, causes the first function to be called, we have
+<i>tail recursion</i>.
+</p>
+
+<p>
+Tail calls do not require the caller's stack frame to be retained, so
+a tail-recursive function can recurse as many levels as necessary without
+increasing the stack depth.
+</p>
+
+<p>
+The <code>count</code> function could be formulated as a tail-recursive
+procedure as follows:
+<pre class="lisp">
+(define (count n a)
+  (if (= n 0)
+      a
+      (count (- n 1) (+ a 1))))
+
+(count 100000 0)
+</pre>
+</p>
+
+<p>
+If you watch <code>eval_expr</code> with a debugger you can confirm that
+the stack never grows above a few levels deep.
+</p>
+
+<p>
+All that is left to do is clean up all the temporary objects created
+by our new evaluator.
+</p>
+
+</body>
+</html>
+
+
+
+
+
+
+<!--
+     FILE ARCHIVED ON 13:21:29 Dec 9, 2014 AND RETRIEVED FROM THE
+     INTERNET ARCHIVE ON 16:31:04 Jan 20, 2016.
+     JAVASCRIPT APPENDED BY WAYBACK MACHINE, COPYRIGHT INTERNET ARCHIVE.
+
+     ALL OTHER CONTENT MAY ALSO BE PROTECTED BY COPYRIGHT (17 U.S.C.
+     SECTION 108(a)(3)).
+-->

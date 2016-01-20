@@ -314,7 +314,7 @@ object Sisp {
   object Parser extends LispParser {
     def parse(input: String): List[Atom] = parseAll(program, input) match {
       case Success(result, _) => result
-      case failure : NoSuccess => scala.sys.error(failure.msg)
+      case failure: NoSuccess => scala.sys.error(failure.msg)
     }
   }
 }
