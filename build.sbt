@@ -2,9 +2,9 @@ name := "sisp"
 
 version := "0.1"
 
-sbtVersion := "0.13.9"
+sbtVersion := "0.13.12"
 
-scalaVersion := "2.11.7"
+scalaVersion := "2.11.8"
 
 scalacOptions ++= Seq(
   "-feature",
@@ -15,7 +15,7 @@ scalacOptions ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-  "org.scalatest" % "scalatest_2.11" % "2.1.3" % "test",
+  "org.scalatest" %% "scalatest" % "2.1.3" % "test",
   "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.3",
   "jline" % "jline" % "2.12"
 )
